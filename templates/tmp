@@ -1,0 +1,117 @@
+
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="fas fa-fw fa-folder"></i>
+          <span>Pages</span>
+        </a>
+        <div class="dropdown-menu" aria-labelledby="pagesDropdown">
+          <h5 class="dropdown-header">Login Screens:</h6>
+          <a class="dropdown-item" href="/login">Se connecter</a>
+          <a class="dropdown-item" href="/register">Inscrire un compte</a>
+          <a class="dropdown-item" href="/forgot-password">Mot de passe oublie</a>
+        </div>
+      </li>
+
+
+          <div class="form-group">
+            <div class="form-row">
+              <div class="col-md-6">
+                <div class="form-label-group">
+                  <input type="text" id="firstName" class="form-control" placeholder="First name" required="required" autofocus="autofocus">
+                  <label for="firstName">Prénom</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-label-group">
+                  <input type="text" id="lastName" class="form-control" placeholder="Last name" required="required">
+                  <label for="lastName">Nom</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+        <div class="text-center">
+          <a class="d-block small mt-3" href="/register">Ajouter un compte</a>
+          <a class="d-block small" href="/forgot-password">Mot de passe oublié</a>
+        </div>
+
+
+          <div class="form-group">
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" name="rememberMe" value="remember-me">
+                Se rappeler du mot de passe <br>
+                {% if error %}
+                  Mauvaise combinaison email/Mot de passe
+                {% endif %}
+              </label>
+            </div>
+          </div>
+
+
+      {% if current_user.is_authenticated %}
+      <li class="nav-item">
+        <a class="nav-link" href="/register">
+          <i class="fas fa-fw fa-table"></i>
+          <span>Inscrire un compte</span></a>
+      </li>
+      {% endif %}
+
+
+        <!-- Area Chart Example-->
+        <div class="card mb-3">
+          <div class="card-header">
+            <i class="fas fa-chart-area"></i>
+            Area Chart Example</div>
+          <div class="card-body">
+            <canvas id="myAreaChart" width="100%" height="30"></canvas>
+          </div>
+          <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
+        </div>
+
+        <div class="row">
+          <div class="col-lg-8">
+            <div class="card mb-3">
+              <div class="card-header">
+                <i class="fas fa-chart-bar"></i>
+                Bar Chart Example</div>
+              <div class="card-body">
+                <canvas id="myBarChart" width="100%" height="50"></canvas>
+              </div>
+              <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="card mb-3">
+              <div class="card-header">
+                <i class="fas fa-chart-pie"></i>
+                Pie Chart Example</div>
+              <div class="card-body">
+                <canvas id="myPieChart" width="100%" height="100"></canvas>
+              </div>
+              <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
+            </div>
+          </div>
+        </div>
+
+        <p class="small text-center text-muted my-5">
+          <em>More chart examples coming soon...</em>
+        </p>
+
+
+              <script>
+              var ctx = document.getElementById("Bar_Module");
+              var bar_module_chart = new Chart(ctx, {
+              type: 'bar',
+              data: {
+              labels: [
+              {% for modules in Module %}
+              ],
+              datasets:[{
+                data : [
+                
+                ],
+              ]}
+              });
+              </script>
