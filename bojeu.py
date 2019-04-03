@@ -1,8 +1,7 @@
 #! /usr/bin/python3 
 from flask import Flask, render_template, render_template_string, redirect
 from flask_sqlalchemy import SQLAlchemy
-from flask import abort
-from flask import request
+from flask import abort, flash, request
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from pathlib import Path 
@@ -77,6 +76,37 @@ def default():
 def loadTable(): 
     return render_template('tables.html', Badge=Badge.query.all())
 
+@app.route("/inscription", methods = ['GET', 'POST'])
+@login_required
+def loadInscription():
+    if request.method == 'GET':
+        return render_template('inscription.html')
+    if 'inputEmail' not in request.form.keys():
+        flash('missing email', 'error')
+        return render_template('inscription.html')
+    if 'inputPassword' not in request.form.keys():
+        flash('missing password', 'error')
+        return render_template('inscription.html')
+
+    inputEmail = request.form['inputEmail']
+    inputPassword = request.form['inputPassword']
+    kwargs = {'email': inputEmail}
+    test = db.session.query(User).filter_by(**kwargs).first()
+    if test is not None:
+        flash('user {} already exist'.format(inputEmail), 'error')
+        return render_template('inscription.html')
+
+    password_hash = generate_password_hash(inputPassword)
+    kwargs = {'email': inputEmail, 'password': password_hash}
+    user = User(**kwargs)
+    db.session.add(user)
+    db.session.commit()
+    flash('user {} successfully added'.format(inputEmail), 'success')
+
+    return render_template('inscription.html')
+    
+    
+
 @app.route("/charts")
 @login_required
 def loadChart():
@@ -101,11 +131,12 @@ def forgot_page():
         pass
     elif request.method == "GET":
         return render_template('forgot-password.html')
+
 @app.route("/logout")
 @login_required
 def logout():
-        logout_user()
-        return redirect('/')
+    logout_user()
+    return redirect('/')
 
 @app.route("/<var1>")
 @login_required
@@ -121,4 +152,4 @@ def erreur404(error):
 
 if __name__ == "__main__":
     db.create_all()
-    app.run(host="0.0.0.0",port=3002)
+    app.run(host="0.0.0.0", port=3002, debug=True)
