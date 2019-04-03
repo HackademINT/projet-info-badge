@@ -165,7 +165,18 @@
   <!-- Demo scripts for this page-->
   <script src="/static/js/demo/datatables-demo.js"></script>
   <script src="/static/js/demo/chart-area-demo.js"></script>
+  
+  <!-- Custom -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
+  <script src="/static/js/custom.js"></script>
 
 </body>
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<script>flash_sweetalert2("{{ message  }}", "Informations", "{{ category }}");</script>
+{% endfor %}
+{% endif %}
+{% endwith %}
 
 </html>
