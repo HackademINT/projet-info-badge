@@ -7,6 +7,9 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from werkzeug.security import generate_password_hash, check_password_hash
 from pathlib import Path 
 from functools import wraps
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'LIncroyableCleDuBoJeu'
@@ -16,6 +19,8 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+# set optional bootswatch theme
+# app.config['FLASK_ADMIN_SWATCH'] = 'cerulean'
 
 class Module(db.Model):
     id        = db.Column(db.Integer, primary_key=True)
@@ -41,6 +46,14 @@ class UserRoles(db.Model):
     id        = db.Column(db.Integer(), primary_key=True)
     user_id   = db.Column(db.Integer(), db.ForeignKey('user.id', ondelete='CASCADE'))
     role_id   = db.Column(db.Integer(), db.ForeignKey('role.id', ondelete='CASCADE'))
+
+admin = Admin(app, name='ProjetBojeu', template_mode='bootstrap3')
+admin.add_view(ModelView(User, db.session))
+admin.add_view(ModelView(Module, db.session))
+admin.add_view(ModelView(Badge, db.session))
+admin.add_view(ModelView(Role, db.session))
+admin.add_view(ModelView(UserRoles, db.session))
+
 
 @login_manager.user_loader
 def load_user(user_id):
