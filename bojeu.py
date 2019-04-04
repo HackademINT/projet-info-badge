@@ -69,7 +69,7 @@ def login_required(f):
 @app.route("/")
 @login_required
 def default():
-    return render_template('index.html')
+    return render_template('index.html', Badge=Badge.query.all())
 
 @app.route("/tables")
 @login_required
