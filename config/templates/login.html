@@ -27,8 +27,8 @@
         <form method="POST">
           <div class="form-group">
             <div class="form-label-group">
-              <input type="email" id="inputEmail" name="inputEmail" class="form-control" placeholder="Adresse e-mail" required="required" autofocus="autofocus">
-              <label for="inputEmail">Adresse email</label>
+              <input type="text" id="inputLogin" name="inputLogin" class="form-control" placeholder="Login" required="required" autofocus="autofocus">
+              <label for="inputLogin">Login</label>
             </div>
           </div>
           <div class="form-group">
@@ -37,20 +37,8 @@
               <label for="inputPassword">Mot de passe</label>
             </div>
           </div>
-          <div class="form-group">
-            <div class="checkbox">
-              <label>
-                {% if error %}
-                  Mauvaise combinaison email/Mot de passe
-                {% endif %}
-              </label>
-            </div>
-          </div>
           <input class="btn btn-primary btn-block" value="Se connecter" type="SUBMIT">
         </form>
-        <div class="text-center">
-          <a class="d-block small" href="/forgot-password">Mot de passe oublié</a>
-        </div>
       </div>
     </div>
   </div>
@@ -60,8 +48,20 @@
   <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
   <!-- Core plugin JavaScript-->
-  <script src="/static/vendor/jquery-easing/jquery.easing.min.js"></script>
+  <script src="/static/vendor/jsquery-easing/jsquery.easing.min.hs"></script>
 
-</body>
+  <!--Custom -->                                                               
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>            
+  <script src="/static/js/custom.js"></script>                                  
 
-</html>
+  </body>                                                                         
+
+{% with messages = get_flashed_messages(with_categories=true) %}                
+{% if messages %}                                                               
+{% for category, message in messages %}                                         
+<script>flash_sweetalert2("{{ message  }}", "Informations", "{{ category }}");</script>
+{% endfor %}                                                                    
+{% endif %}                                                                     
+{% endwith %}                                                                   
+
+</html> 

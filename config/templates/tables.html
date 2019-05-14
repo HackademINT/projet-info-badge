@@ -20,21 +20,24 @@
               <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                   <tr>
-                    <th>ID Badge</th>
                     <th>Timestamp</th>
+                    <th>Module</th>
+                    <th>Identifiant</th>
                   </tr>
                 </thead>
                 <tfoot>
                   <tr>
-                    <th>ID Badge</th>
                     <th>Timestamp</th>
+                    <th>Module</th>
+                    <th>Identifiant</th>
                   </tr>
                 </tfoot>
                 <tbody>
-                  {% for badge in Badge %}
+                  {% for badge in data['Badge'] %}
                   <tr>
-                    <td>{{ badge.id_badge }}</td>
                     <td>{{ badge.timestamp }}</td>
+                    <td>{{ badge.module.nom}}</td>
+                    <td>{{ badge.ldap_student.login}}</td>
                   </tr>
                   {% endfor %}
                 </tbody>
