@@ -8,7 +8,7 @@ from pathlib import Path
 from functools import wraps
 from flask_admin import Admin, AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
-from secret import secretkey
+from config.secret import secretkey
 app = Flask(__name__)
 db = SQLAlchemy(app)
 app.config['SECRET_KEY'] = secretkey
