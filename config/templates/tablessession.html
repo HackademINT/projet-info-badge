@@ -5,7 +5,7 @@
         <!-- Breadcrumbs-->
         <ol class="breadcrumb">
           <li class="breadcrumb-item">
-            <a href="#">Dashboard</a>
+            <a href="/">Dashboard</a>
           </li>
           <li class="breadcrumb-item active">Tables</li>
         </ol>
@@ -14,7 +14,8 @@
         <div class="card mb-3">
           <div class="card-header">
             <i class="fas fa-table"></i>
-            Table des badges</div>
+              Mes dernières sessions
+          </div>
           <div class="card-body">
             <div class="table-responsive">
               <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
@@ -22,22 +23,19 @@
                   <tr>
                     <th>Timestamp</th>
                     <th>Module</th>
-                    <th>Identifiant</th>
                   </tr>
                 </thead>
                 <tfoot>
                   <tr>
                     <th>Timestamp</th>
                     <th>Module</th>
-                    <th>Identifiant</th>
                   </tr>
                 </tfoot>
                 <tbody>
                   {% for badge in data['Badge'] %}
                   <tr>
-                    <td>{{ badge.timestamp }}</td>
-                    <td>{{ badge.module.nom}}</td>
-                    <td>{{ badge.ldap_student.login}}</td>
+                    <td><a href="/tablesusers/{{badge[1]}}">{{ badge[0].timestamp }}</a></td>
+                    <td>{{ badge[0].module.nom}}</td>
                   </tr>
                   {% endfor %}
                 </tbody>

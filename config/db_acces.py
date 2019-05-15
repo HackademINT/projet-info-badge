@@ -78,7 +78,7 @@ class ModuleModelView(ModelView):
 
 class BadgeModelView(ModelView):                                                 
     page_size = 20                                                              
-    column_searchable_list = ['id_ldap_teacher','id_ldap_student', 'timestamp','id_module']                         
+    column_searchable_list = ['id_ldap_teacher','id_ldap_student', 'timestamp','id_module'] 
     column_exclude_list = []                                                    
     form_excluded_columns = []                                                                                                                                  
     def is_accessible(self):                                                    

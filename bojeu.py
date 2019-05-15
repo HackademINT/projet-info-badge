@@ -10,6 +10,8 @@ from flask_admin import Admin, AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
 from config.db_acces import *
 from config.functions import *
+import binascii
+import re 
 
 tokens = ["thesupertoken"]
 
@@ -28,12 +30,25 @@ def default():
     data['Badge']=Badge.query.filter_by(id_ldap_teacher=current_user.id_badge)
     return render_template('index.html', data=data)
 
-@app.route("/tables")
+@app.route("/tablessession")
 @login_required
-def loadTable(): 
+def loadTablesession(): 
     data = {}
-    data['Badge']=Badge.query.filter_by(id_ldap_teacher=current_user.id_badge)
-    return render_template('tables.html', data=data)
+    data['Badge']=[ (i,binascii.hexlify(str(i.timestamp).encode()).decode()) for i in Badge.query.filter_by(id_ldap_teacher=current_user.id_badge).distinct(Badge.timestamp)]
+    return render_template('tablessession.html', data=data)
+
+@app.route("/tablesusers/<var1>")
+@login_required
+def loadTableusers(var1):
+    data = {}
+    try:
+        var1 = binascii.unhexlify(var1)
+        tmp = re.findall(b'([1-9][0-9]*-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1]) (2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9])',var1)
+        data['Badge']=Badge.query.filter_by(timestamp=tmp[0][0].decode()) 
+        return render_template('tablesusers.html', data=data)
+    except:
+        flash("Le timestamp n'est pas valide",'error')
+        return redirect('/tablessession')
 
 @app.route("/charts")
 @login_required
@@ -74,9 +89,11 @@ def addsession():
 def login_page():
     if request.method == "POST":
         if func_authenticate(request.form['inputLogin'],request.form['inputPassword']):
-            ldap_user = LdapUser.query.filter_by(login=request.form['inputLogin']).first()
+            login = request.form['inputLogin'].lower()
+            ldap_user = LdapUser.query.filter_by(login=login).first()
             if ldap_user is None:
-                ldap_user = LdapUser(login=request.form['inputLogin'])
+                ldap_user = LdapUser(login=login)
+                ldap_user.id_badge = ldap_user.id
                 db.session.add(ldap_user)
                 db.session.commit()
             login_user(ldap_user)
