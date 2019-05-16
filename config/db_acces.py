@@ -20,6 +20,8 @@ login_manager.init_app(app)
 class Module(db.Model):
     id              = db.Column(db.Integer, primary_key=True)
     nom             = db.Column(db.String(80),nullable=False)
+    def __repr__(self):
+        return self.nom
 
 class Badge(db.Model):
     id              = db.Column(db.Integer, primary_key=True)
@@ -40,6 +42,8 @@ class LdapUser(db.Model, UserMixin):
     login           = db.Column(db.String(80), nullable=False)
     id_badge        = db.Column(db.Integer, unique=True)#,nullable=False)
     coordinated_module = db.relationship('Module', secondary='coordinator')
+    def __repr__(self):
+        return self.login
 
 class Coordinator(db.Model):
     id              = db.Column(db.Integer, primary_key=True)
