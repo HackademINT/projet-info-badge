@@ -78,6 +78,31 @@
         </div>
 -->
 
+        <div class="card mb-3">
+          <div class="card-header">
+            <i class="fas fa-table"></i>
+            Mes modules</div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                  <tr>
+                    <th>Module</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for module in modules %}
+                  <tr>
+                    <td><a href="/module/{{ module.id }}">{{ module.nom }}</a></td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card-footer small text-muted">Total: {{ modules|count }} modules</div>
+        </div>
+
         <!-- Area Chart Example-->
         <div class="card mb-3">
           <div class="card-header">
@@ -88,41 +113,6 @@
           </div>
           <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
         </div>
-
-        <!-- DataTables Example -->
-        <div class="card mb-3">
-          <div class="card-header">
-            <i class="fas fa-table"></i>
-            Table des badges</div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                <thead>
-                  <tr>
-                    <th>ID Badge</th>
-                    <th>Timestamp</th>
-                  </tr>
-                </thead>
-                <tfoot>
-                  <tr>
-                    <th>ID Badge</th>
-                    <th>Timestamp</th>
-                  </tr>
-                </tfoot>
-                <tbody>
-                  {% for badge in data['Badge'] %}
-                  <tr>
-                    <td>{{ badge.id_badge }}</td>
-                    <td>{{ badge.timestamp }}</td>
-                  </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
-        </div>
-
       </div>
       <!-- /.container-fluid -->
 {% endblock %}

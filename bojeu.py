@@ -26,9 +26,10 @@ def login_required(f):
 @app.route("/")
 @login_required
 def default():
-    data = {}
-    data['Badge']=Badge.query.filter_by(id_ldap_teacher=current_user.id_badge)
-    return render_template('index.html', data=data)
+    modules=db.session.query(Module).join(Badge).\
+            filter_by(id_ldap_teacher=current_user.id_badge, 
+                      id_module=Module.id).all()
+    return render_template('index.html', modules=modules)
 
 @app.route("/tablessession")
 @login_required
