@@ -35,7 +35,7 @@
                   {% for badge in data['Badge'] %}
                   <tr>
                     <td><a href="/tablesusers/{{badge[1]}}">{{ badge[0].timestamp }}</a></td>
-                    <td>{{ badge[0].module.nom}}</td>
+                    <td><a href="/module/{{ badge[0].module.id }}">{{ badge[0].module.nom }}</a></td>
                   </tr>
                   {% endfor %}
                 </tbody>

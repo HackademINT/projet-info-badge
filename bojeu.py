@@ -110,6 +110,19 @@ def logout():
     logout_user()
     return redirect('/')
 
+@app.route("/module/<id_mod>")
+@login_required
+def module(id_mod): 
+    nomModule = db.session.query(Module).get(id_mod).nom
+    eleves = db.session.query(LdapUser.login).\
+            join(Badge, Badge.id_ldap_student==LdapUser.id).filter_by(id_module=id_mod).all()
+    eleves = [eleve[0] for eleve in eleves]
+    eleves_distinct = list(set([(eleve, eleves.count(eleve)) for eleve in eleves]))
+    liste_eleves = [eleve[0] for eleve in eleves_distinct]
+    liste_presences = [eleve[1] for eleve in eleves_distinct]
+    return render_template('module.html', nomModule=nomModule,
+                           labels=liste_eleves, data=liste_presences)
+
 @app.route("/<var1>")
 @login_required
 def relocate(var1):     
