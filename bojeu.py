@@ -37,16 +37,33 @@ def loadTablesession():
     data['Badge']=[ (i,binascii.hexlify(str(i.timestamp).encode()).decode()) for i in Badge.query.filter_by(id_ldap_teacher=current_user.id_badge).distinct(Badge.timestamp)]
     return render_template('tablessession.html', data=data)
 
-@app.route("/tablesusers/<var1>")
+@app.route("/tablesusers/<var1>", methods=["GET","POST"])
 @login_required
 def loadTableusers(var1):
     data = {}
     try:
+        var=var1
         var1 = binascii.unhexlify(var1)
         tmp = re.findall(b'([1-9][0-9]*-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1]) (2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9])',var1)
-        data['Badge']=Badge.query.filter_by(timestamp=tmp[0][0].decode()) 
+        badges = Badge.query.filter_by(timestamp=tmp[0][0].decode(),id_ldap_teacher=current_user.id_badge) 
+        if request.method == 'POST':
+            try:
+                #badge = Badge.query.filter_by(id=badges[0].module.id).first()
+                for badge in list(badges):
+                    badge.id_module = request.form['newModuleId']
+                    print(badge)
+                    db.session.commit()
+                    print(badge)
+                return redirect('/tablesusers/{}'.format(var))
+            except Exception as e:
+                flash("La base n'a pas pu être modifiée",'error')
+                data['Badge']=badges
+                data['Modules']=db.session.query(Module.nom, Module.id).join(Badge).filter_by(id_ldap_teacher=current_user.id_badge).distinct(Module.id)
+                return render_template('/tablesusers/{}'.format(var), data=data)
+        data['Badge']=badges
+        data['Modules']=db.session.query(Module.nom, Module.id).join(Badge).filter_by(id_ldap_teacher=current_user.id_badge).distinct(Module.id)
         return render_template('tablesusers.html', data=data)
-    except:
+    except Exception as e:
         flash("Le timestamp n'est pas valide",'error')
         return redirect('/tablessession')
 
@@ -67,7 +84,7 @@ def addsession():
     
     if not token in tokens:
         return None
-    
+
     ldap_teacher = LdapUser.query.filter_by(id_badge=id_badge_teacher).first()
     if ldap_teacher:
         id_ldap_teacher = ldap_teacher.id 
