@@ -36,6 +36,11 @@ class Badge(db.Model):
     
     module          = db.relationship('Module')
     id_module       = db.Column(db.Integer(), db.ForeignKey('module.id'), nullable=False)
+    def __repr__(self):
+        return '<{} {} ({} {}): {} >' .format(self.ldap_teacher.login, self.timestamp,
+                                              self.id_module, self.module.nom, 
+                                              self.ldap_student.login)
+
 
 class LdapUser(db.Model, UserMixin):
     id              = db.Column(db.Integer, primary_key=True)
