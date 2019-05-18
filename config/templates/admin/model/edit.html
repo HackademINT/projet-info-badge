@@ -11,19 +11,19 @@
   {% block navlinks %}
   <ul class="nav nav-tabs">
     <li>
-        <a href="{{ return_url }}">{{ _gettext('List') }}</a>
+        <a href="{{ return_url }}">{{ _gettext('Liste') }}</a>
     </li>
     {%- if admin_view.can_create -%}
     <li>
-        <a href="{{ get_url('.create_view', url=return_url) }}">{{ _gettext('Create') }}</a>
+        <a href="{{ get_url('.create_view', url=return_url) }}">{{ _gettext('Créer') }}</a>
     </li>
     {%- endif -%}
     <li class="active">
-        <a href="javascript:void(0)">{{ _gettext('Edit') }}</a>
+        <a href="javascript:void(0)">{{ _gettext('Editer') }}</a>
     </li>
     {%- if admin_view.can_view_details -%}
     <li>
-        <a href="{{ get_url('.details_view', id=request.args.get('id'), url=return_url) }}">{{ _gettext('Details') }}</a>
+        <a href="{{ get_url('.details_view', id=request.args.get('id'), url=return_url) }}">{{ _gettext('Détails') }}</a>
     </li>
     {%- endif -%}
   </ul>

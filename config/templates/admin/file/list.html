@@ -6,7 +6,7 @@
     {% block breadcrums %}
     <ul class="breadcrumb">
         <li>
-            <a href="{{ get_dir_url('.index_view', path=None) }}">{{ _gettext('Root') }}</a>
+            <a href="{{ get_dir_url('.index_view', path=None) }}">{{ _gettext('Racine') }}</a>
         </li>
         {% for name, path in breadcrumbs[:-1] %}
         <li>
@@ -37,7 +37,7 @@
                 <th>
                     {% if admin_view.is_column_sortable(column) %}
                     {% if sort_column == column %}
-                        <a href="{{ sort_url(column, dir_path, True) }}" title="{{ _gettext('Sort by %(name)s', name=column) }}">
+                        <a href="{{ sort_url(column, dir_path, True) }}" title="{{ _gettext('Trier par %(name)s', name=column) }}">
                             {{ admin_view.column_label(column) }}
                             {% if sort_desc %}
                                 <span class="fa fa-chevron-up glyphicon glyphicon-chevron-up"></span>
@@ -46,7 +46,7 @@
                             {% endif %}
                         </a>
                     {% else %}
-                        <a href="{{ sort_url(column, dir_path) }}" title="{{ _gettext('Sort by %(name)s', name=column) }}">{{ admin_view.column_label(column) }}</a>
+                        <a href="{{ sort_url(column, dir_path) }}" title="{{ _gettext('Trier par %(name)s', name=column) }}">{{ admin_view.column_label(column) }}</a>
                     {% endif %}
                     {% else %}
                     {{ _gettext(admin_view.column_label(column)) }}
@@ -71,10 +71,10 @@
                 {% if admin_view.can_rename and path and name != '..' %}
                   {%- if admin_view.rename_modal -%}
                     {{ lib.add_modal_button(url=get_url('.rename', path=path, modal=True),
-                                            title=_gettext('Rename File'),
+                                            title=_gettext('Renommer fichier'),
                                             content='<i class="fa fa-pencil glyphicon glyphicon-pencil"></i>') }}
                   {% else %}
-                    <a class="icon" href="{{ get_url('.rename', path=path) }}" title="{{ _gettext('Rename File') }}">
+                    <a class="icon" href="{{ get_url('.rename', path=path) }}" title="{{ _gettext('Renommer fichier') }}">
                       <i class="fa fa-pencil glyphicon glyphicon-pencil"></i>
                     </a>
                   {%- endif -%}
@@ -89,7 +89,7 @@
                             {% elif csrf_token %}
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                 {% endif %}
-                            <button onclick="return confirm('{{ _gettext('Are you sure you want to delete \\\'%(name)s\\\' recursively?', name=name) }}')">
+                            <button onclick="return confirm('{{ _gettext('Etes-vous sûr de vouloir supprimer \\\'%(name)s\\\' récursivement?', name=name) }}')">
                                 <i class="fa fa-times glyphicon glyphicon-remove"></i>
                             </button>
                         </form>
@@ -102,7 +102,7 @@
                             {% elif csrf_token %}
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                 {% endif %}
-                        <button onclick="return confirm('{{ _gettext('Are you sure you want to delete \\\'%(name)s\\\'?', name=name) }}')">
+                        <button onclick="return confirm('{{ _gettext('Etes-vous sûr de vouloir supprimer \\\'%(name)s\\\'?', name=name) }}')">
                             <i class="fa fa-trash glyphicon glyphicon-trash"></i>
                         </button>
                     </form>
@@ -153,9 +153,9 @@
             {%- if admin_view.upload_modal -%}
               {{ lib.add_modal_button(url=get_dir_url('.upload', path=dir_path, modal=True),
                                       btn_class="btn btn-default btn-large",
-                                      content=_gettext('Upload File')) }}
+                                      content=_gettext('Uploader un fichier')) }}
             {% else %}
-              <a class="btn btn-default btn-large" href="{{ get_dir_url('.upload', path=dir_path) }}">{{ _gettext('Upload File') }}</a>
+              <a class="btn btn-default btn-large" href="{{ get_dir_url('.upload', path=dir_path) }}">{{ _gettext('Uploader un fichier') }}</a>
             {%- endif -%}
         </div>
         {% endif %}
@@ -164,9 +164,9 @@
             {%- if admin_view.mkdir_modal -%}
               {{ lib.add_modal_button(url=get_dir_url('.mkdir', path=dir_path, modal=True),
                                       btn_class="btn btn-default btn-large",
-                                      content=_gettext('Create Directory')) }}
+                                      content=_gettext('Créer un dossier')) }}
             {% else %}
-              <a class="btn btn-default btn-large" href="{{ get_dir_url('.mkdir', path=dir_path) }}">{{ _gettext('Create Directory') }}</a>
+              <a class="btn btn-default btn-large" href="{{ get_dir_url('.mkdir', path=dir_path) }}">{{ _gettext('Créer un dossier') }}</a>
             {%- endif -%}
         </div>
         {% endif %}
@@ -190,7 +190,7 @@
 
 {% block tail %}
     {{ super() }}
-    {{ actionslib.script(_gettext('Please select at least one file.'),
+    {{ actionslib.script(_gettext('Veuillez sélectionner au moins un fichier.'),
                          actions,
                          actions_confirmation) }}
 {% endblock %}
