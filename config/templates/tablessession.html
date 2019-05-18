@@ -10,7 +10,49 @@
           <li class="breadcrumb-item active">Tables</li>
         </ol>
 
-        <!-- DataTables Example -->
+        <div class="card mb-3">
+          <div class="card-header">
+            <i class="fas fa-table"></i>
+              Mes sessions à attribuer
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered" id="dataTable2" width="100%" cellspacing="0">
+                <thead>
+                  <tr>
+                    <th>Timestamp</th>
+                    <th>Module</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in todo %}
+                  <tr>
+                    <form id="{{ item[0].timestamp }}" name="{{ item[0].timestamp }}" action="/update-module" method="post">
+                      <td>
+                        <a href="/tablesusers/{{ item[1] }}">{{ item[0].timestamp }}</a>
+                        <input type="hidden" name="timestamp" value="{{ item[0].timestamp }}" />
+                      </td>
+                      <td>
+                        <div class="input-group">
+                          <select name="module" class="custom-select custom-select-sm">
+                            <option selected>Sélectionnez le bon module</option>
+                            {% for module in modules %}
+                              <option value="{{ module.id }}">{{ module.nom }}</option>
+                            {% endfor %}
+                          </select>
+                          <button class="btn btn-outline-success btn-sm" form="{{ item[0].timestamp }}" role="button" aria-pressed="true"><i class="fa fa-check"></i></button>
+                        </div>
+                      </td>
+                      </form>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card-footer small text-muted"></div>
+        </div>
+
         <div class="card mb-3">
           <div class="card-header">
             <i class="fas fa-table"></i>
@@ -25,24 +67,18 @@
                     <th>Module</th>
                   </tr>
                 </thead>
-                <tfoot>
-                  <tr>
-                    <th>Timestamp</th>
-                    <th>Module</th>
-                  </tr>
-                </tfoot>
                 <tbody>
-                  {% for badge in data['Badge'] %}
+                  {% for item in data %}
                   <tr>
-                    <td><a href="/tablesusers/{{badge[1]}}">{{ badge[0].timestamp }}</a></td>
-                    <td><a href="/module/{{ badge[0].module.id }}">{{ badge[0].module.nom }}</a></td>
+                    <td><a href="/tablesusers/{{ item[1] }}">{{ item[0].timestamp }}</a></td>
+                    <td>{{ item[0].module.nom }}</td>
                   </tr>
                   {% endfor %}
                 </tbody>
               </table>
             </div>
           </div>
-          <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
+          <div class="card-footer small text-muted"></div>
         </div>
 
       </div>

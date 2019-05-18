@@ -26,17 +26,20 @@ def login_required(f):
 @app.route("/")
 @login_required
 def default():
-    modules=db.session.query(Module).join(Badge).\
+    modules = db.session.query(Module).join(Badge).\
             filter_by(id_ldap_teacher=current_user.id_badge, 
                       id_module=Module.id).all()
     return render_template('index.html', modules=modules)
 
 @app.route("/tablessession")
 @login_required
-def loadTablesession(): 
-    data = {}
-    data['Badge']=[ (i,binascii.hexlify(str(i.timestamp).encode()).decode()) for i in Badge.query.filter_by(id_ldap_teacher=current_user.id_badge).distinct(Badge.timestamp)]
-    return render_template('tablessession.html', data=data)
+def loadTablesession():
+    badges = Badge.query.filter_by(id_ldap_teacher=current_user.id_badge).distinct(Badge.timestamp)
+    data = [(badge, binascii.hexlify(str(badge.timestamp).encode()).decode()) for badge in badges if badge.id_module]
+    todo = [(badge, binascii.hexlify(str(badge.timestamp).encode()).decode()) for badge in badges if not badge.id_module]
+    distinct_modules = db.session.query(Module).join(Badge).filter_by(id_ldap_teacher=current_user.id_badge).filter(Badge.id_module!=0)
+    print(todo)
+    return render_template('tablessession.html', data=data, todo=todo, modules=distinct_modules)
 
 @app.route("/tablesusers/<var1>", methods=["GET","POST"])
 @login_required
@@ -75,6 +78,17 @@ def loadChart():
     data['Badge']=Badge.query.filter_by(id_ldap_teacher=current_user.id_badge)
     data['Module']=Module.query.all()
     return render_template('charts.html', data=data)
+
+@app.route("/update-module", methods=["POST"])
+@login_required
+def update_session():
+    kw = {'id_ldap_teacher': current_user.id_badge, 'timestamp': request.form['timestamp']}
+    badges = Badge.query.filter_by(**kw).all()
+    for badge in badges:
+        badge.id_module = request.form['module']
+    db.session.commit()
+    flash('update ok')
+    return redirect('/tablessession')
 
 @app.route("/requete",methods=["POST"])
 def addsession():
@@ -155,4 +169,4 @@ def erreur404(error):
 
 if __name__ == "__main__":
     db.create_all()
-    app.run(host="0.0.0.0", port=3002, debug=True)
+    app.run(host="0.0.0.0", port=8083, debug=True)
