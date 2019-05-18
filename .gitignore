@@ -7,4 +7,8 @@ __pycache__/*
 =======
 __pycache__/
 /config/secret.py
+<<<<<<< HEAD
 >>>>>>> 2a37c86... Update .gitignore
+=======
+/config/badge.db
+>>>>>>> e59b391... Update gitignore
