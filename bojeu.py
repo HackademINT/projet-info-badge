@@ -87,7 +87,8 @@ def update_session():
     for badge in badges:
         badge.id_module = request.form['module']
     db.session.commit()
-    flash('update ok')
+    flash('La session du {} a bien été associée au module {}'.format(request.form['timestamp'], 
+                 Module.query.get(request.form['module']).nom))
     return redirect('/tablessession')
 
 @app.route("/requete",methods=["POST"])
