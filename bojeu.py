@@ -12,6 +12,7 @@ from config.db_acces import *
 from config.functions import *
 import binascii
 import re 
+import datetime
 
 tokens = ["thesupertoken"]
 
@@ -27,62 +28,60 @@ def login_required(f):
 @login_required
 def default():
     modules = db.session.query(Module).join(Badge).\
-            filter_by(id_ldap_teacher=current_user.id_badge, 
+            filter_by(id_ldap_teacher=current_user.id, 
                       id_module=Module.id).all()
     return render_template('index.html', modules=modules)
 
 @app.route("/tablessession")
 @login_required
 def loadTablesession():
-    badges = Badge.query.filter_by(id_ldap_teacher=current_user.id_badge).distinct(Badge.timestamp)
+    badges = Badge.query.filter_by(id_ldap_teacher=current_user.id).distinct(Badge.timestamp)
     data = [(badge, binascii.hexlify(str(badge.timestamp).encode()).decode()) for badge in badges if badge.id_module]
     todo = [(badge, binascii.hexlify(str(badge.timestamp).encode()).decode()) for badge in badges if not badge.id_module]
-    distinct_modules = db.session.query(Module).join(Badge).filter_by(id_ldap_teacher=current_user.id_badge).filter(Badge.id_module!=0)
-    print(todo)
+    distinct_modules = db.session.query(Module).join(Badge).filter_by(id_ldap_teacher=current_user.id).filter(Badge.id_module!=0)
     return render_template('tablessession.html', data=data, todo=todo, modules=distinct_modules)
 
 @app.route("/tablesusers/<var1>", methods=["GET","POST"])
 @login_required
 def loadTableusers(var1):
-    data = {}
-    try:
+        data = {}
+    #try:
         var=var1
         var1 = binascii.unhexlify(var1)
         tmp = re.findall(b'([1-9][0-9]*-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1]) (2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9])',var1)
-        badges = Badge.query.filter_by(timestamp=tmp[0][0].decode(),id_ldap_teacher=current_user.id_badge) 
+        badges = Badge.query.filter_by(timestamp=tmp[0][0].decode(),id_ldap_teacher=current_user.id)
+        badges = Badge.query.filter_by(id_ldap_teacher=current_user.id)
         if request.method == 'POST':
             try:
                 #badge = Badge.query.filter_by(id=badges[0].module.id).first()
                 for badge in list(badges):
                     badge.id_module = request.form['newModuleId']
-                    print(badge)
                     db.session.commit()
-                    print(badge)
                 return redirect('/tablesusers/{}'.format(var))
             except Exception as e:
                 flash("La base n'a pas pu être modifiée",'error')
                 data['Badge']=badges
-                data['Modules']=db.session.query(Module.nom, Module.id).join(Badge).filter_by(id_ldap_teacher=current_user.id_badge).distinct(Module.id)
+                data['Modules']=db.session.query(Module.nom, Module.id).join(Badge).filter_by(id_ldap_teacher=current_user.id).distinct(Module.id)
                 return render_template('/tablesusers/{}'.format(var), data=data)
         data['Badge']=badges
-        data['Modules']=db.session.query(Module.nom, Module.id).join(Badge).filter_by(id_ldap_teacher=current_user.id_badge).distinct(Module.id)
+        data['Modules']=db.session.query(Module.nom, Module.id).join(Badge).filter_by(id_ldap_teacher=current_user.id).distinct(Module.id)
         return render_template('tablesusers.html', data=data)
-    except Exception as e:
-        flash("Le timestamp n'est pas valide",'error')
-        return redirect('/tablessession')
+    #except Exception as e:
+    #    flash("Le timestamp n'est pas valide",'error')
+    #    return redirect('/tablessession')
 
 @app.route("/charts")
 @login_required
 def loadChart():
     data = {}
-    data['Badge']=Badge.query.filter_by(id_ldap_teacher=current_user.id_badge)
+    data['Badge']=Badge.query.filter_by(id_ldap_teacher=current_user.id)
     data['Module']=Module.query.all()
     return render_template('charts.html', data=data)
 
 @app.route("/update-module", methods=["POST"])
 @login_required
 def update_session():
-    kw = {'id_ldap_teacher': current_user.id_badge, 'timestamp': request.form['timestamp']}
+    kw = {'id_ldap_teacher': current_user.id, 'timestamp': request.form['timestamp']}
     badges = Badge.query.filter_by(**kw).all()
     for badge in badges:
         badge.id_module = request.form['module']
@@ -93,30 +92,27 @@ def update_session():
 
 @app.route("/requete",methods=["POST"])
 def addsession():
-    message = request.form['message'].split(";")
+    message = request.data.decode()
+    message = message.split(";")
     if len(message) != 4:
         return None
     id_badge_student, id_badge_teacher, date, token = message
-    
-    if not token in tokens:
-        return None
-
+    id_badge_student = int(id_badge_student, 16)
+    id_badge_teacher = int(id_badge_teacher, 16)
+    date=datetime.datetime.strptime(date + '.000000','%Y-%m-%d %H:%M:%S.%f')
     ldap_teacher = LdapUser.query.filter_by(id_badge=id_badge_teacher).first()
-    if ldap_teacher:
-        id_ldap_teacher = ldap_teacher.id 
-    else:
-        new_ldap_teacher = LdapUser(login=current_user.login,id_badge=ldap_teacher.id)
-    
+    #if not(ldap_teacher):
+    #    ldap_teacher = LdapUser(id_badge=id_badge_teacher)
+    id_ldap_teacher = ldap_teacher.id 
     ldap_student = LdapUser.query.filter_by(id_badge=id_badge_student).first()
     if ldap_student:
         id_ldap_student = ldap_student.id 
     else:
         #A Modifier
-        id_ldap_student = LdapUser.query.all().first().id 
-
-    badge = Badge(id_ldap_prof=id_ldap_teacher,id_ldap_student=id_ldap_student,date=date)
-    db.add(badge)
-    db.commit()
+        id_ldap_student = LdapUser.query.first().id 
+    badge = Badge(id_ldap_teacher=id_ldap_teacher,id_ldap_student=id_ldap_student,timestamp=date,id_module=0)
+    db.session.add(badge)
+    db.session.commit()
 
 @app.route("/login",methods=["GET","POST"])
 def login_page():

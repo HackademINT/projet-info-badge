@@ -16,13 +16,13 @@
         <!-- DataTables Example -->
         <div class="card mb-3">
           <div class="card-header">
-            <b>Session</b>: {{data['Badge'][0].timestamp}}<br/>
+            <b>Session</b>: {{data['Badge'].timestamp}}<br/>
             <b>Module</b>: 
-            <span id="nommodule"> {{data['Badge'][0].module.nom}} <button class="btn" id="changenommodule"><i class="fa fa-pencil-alt"></i></button></span>
+            <span id="nommodule"> {{data['Badge'].module}} <button class="btn" id="changenommodule"><i class="fa fa-pencil-alt"></i></button></span>
             <form method="POST" style="display:none" id="form">
               <select class="browser-default custom-select" name="newModuleId" style="width:auto">
               {% for i in data['Modules'] %}
-              <option {% if i[1]==data['Badge'][0].module.id %} selected {% endif %} value={{i[1]}}> {{i[0]}} </option>
+              <option {% if i[1]==data['Badge'].module %} selected {% endif %} value={{i[1]}}> {{i[0]}} </option>
               {% endfor %}
               </select>
               <button class="btn"><i class="fa fa-check"></i></button>
