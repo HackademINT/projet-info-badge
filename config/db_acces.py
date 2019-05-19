@@ -47,23 +47,28 @@ class Badge(db.Model):
 
 
 class LdapUser(db.Model, UserMixin):
-    __tablename__   = 'ldap_user'
-    id              = db.Column(db.Integer, primary_key=True)
-    login           = db.Column(db.String(80), nullable=False)
-    id_badge        = db.Column(db.Integer, unique=True)#,nullable=False)
-    #coordinated_module = db.relationship('Module', secondary='coordinator')
+    __tablename__     = 'ldap_user'
+    id                = db.Column(db.Integer, primary_key=True)
+    login             = db.Column(db.String(80), nullable=False)
+    id_badge          = db.Column(db.Integer, unique=True)#,nullable=False)
+    module_accessible = db.relationship('Module', secondary='user_modules')
+    coordinated_module = db.relationship('Module', secondary='coordinator_modules')
     def __repr__(self):
         return self.login
 
-class Coordinateur(db.Model):
-    __tablename__        = 'coordinateur'
-    id                   = db.Column(db.Integer, primary_key=True)
-    ldap_user            = db.relationship('LdapUser')
-    id_ldap_coordinateur = db.Column(db.Integer, db.ForeignKey('ldap_user.id'))
-    module               = db.relationship('Module')
-    id_module            = db.Column(db.Integer, db.ForeignKey('module.id'))
-    def __repr__():
-        return '<Coordinateur {}: {}>'.format(ldap_user.login, module.nom)
+class UserModules(db.Model):
+    __tablename__     = 'user_modules'
+    id                = db.Column(db.Integer, primary_key=True)
+    ldap_user         = db.relationship('LdapUser')
+    ldap_user_id      = db.Column(db.Integer, db.ForeignKey('ldap_user.id',ondelete='CASCADE'))
+    module            = db.relationship('Module')
+    module_id         = db.Column(db.Integer, db.ForeignKey('module.id', ondelete='CASCADE'))
+
+class CoordinatorModules(db.Model):
+    __tablename__     = 'coordinator_modules'
+    id                = db.Column(db.Integer, primary_key=True)
+    ldap_user_id      = db.Column(db.Integer, db.ForeignKey('ldap_user.id',ondelete='CASCADE'))
+    module_id         = db.Column(db.Integer, db.ForeignKey('module.id', ondelete='CASCADE'))
 
 # set optional bootswatch theme
 # app.config['FLASK_ADMIN_SWATCH'] = 'cerulean'
@@ -109,7 +114,7 @@ class BadgeModelView(ModelView):
         return redirect(url_for('default'))
 
 
-class CoordinateurModelView(ModelView):                                                 
+class LdapUserModelView(ModelView):                                                 
     page_size = 20                                                              
     column_searchable_list = ['ldap_user.login', 'module.nom'] 
     column_exclude_list = []                                                    
@@ -129,4 +134,4 @@ def get_user(user_id):
 admin = Admin(app, name='Base de données', template_mode='bootstrap3',index_view=MyAdminView(url='/admin'))                             
 admin.add_view(ModuleModelView(Module, db.session))                                 
 admin.add_view(BadgeModelView(Badge, db.session))                               
-admin.add_view(CoordinateurModelView(Coordinateur, db.session))
+admin.add_view(LdapUserModelView(UserModules, db.session))
