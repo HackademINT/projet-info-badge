@@ -65,7 +65,7 @@ def loadTableusers(var1):
                 data['Modules']=db.session.query(Module.nom, Module.id).join(Badge).filter_by(id_ldap_teacher=current_user.id).distinct(Module.id)
                 return render_template('/tablesusers/{}'.format(var), data=data)
         data['Badge']=badges
-        data['Modules']=db.session.query(Module.nom, Module.id).join(Badge).filter_by(id_ldap_teacher=current_user.id).distinct(Module.id)
+        data['Modules']=db.session.query(Module.nom, Module.id).join(Badge).filter_by(id_ldap_teacher=current_user.id).filter(Module.id!=0).distinct(Module.id)
         return render_template('tablesusers.html', data=data)
     #except Exception as e:
     #    flash("Le timestamp n'est pas valide",'error')
@@ -82,13 +82,17 @@ def loadChart():
 @app.route("/update-module", methods=["POST"])
 @login_required
 def update_session():
-    kw = {'id_ldap_teacher': current_user.id, 'timestamp': request.form['timestamp']}
-    badges = Badge.query.filter_by(**kw).all()
-    for badge in badges:
-        badge.id_module = request.form['module']
-    db.session.commit()
-    flash('La session du {} a bien été associée au module {}'.format(request.form['timestamp'], 
-                 Module.query.get(request.form['module']).nom))
+    kw = {'id_ldap_teacher': current_user.id, 
+          'timestamp': datetime.datetime.strptime(request.form['timestamp']+ '.000000','%Y-%m-%d %H:%M:%S.%f')}
+    try:
+        badges = Badge.query.filter_by(**kw).all()
+        print(badges)
+        for badge in badges:
+            badge.id_module = request.form['module']
+            db.session.commit()
+        flash('La session du {} a bien été associée au module {}'.format(request.form['timestamp'], Module.query.get(request.form['module']).nom))
+    except:
+        flash('Veuillez sélectionner un module.', 'error')
     return redirect('/tablessession')
 
 @app.route("/requete",methods=["POST"])
