@@ -29,8 +29,9 @@ def login_required(f):
 def default():
     modules = db.session.query(Module).join(Badge).\
             filter_by(id_ldap_teacher=current_user.id, 
-                      id_module=Module.id).all()
-    return render_template('index.html', modules=modules)
+                      id_module=Module.id).filter(Module.id!=0).all()
+    todo = Badge.query.distinct(Badge.timestamp).group_by(Badge.timestamp).filter_by(id_ldap_teacher=current_user.id).filter(Badge.id_module==0).count()
+    return render_template('index.html', modules=modules, todo=todo)
 
 @app.route("/tablessession")
 @login_required
@@ -50,12 +51,7 @@ def loadTableusers(var1):
         var1 = binascii.unhexlify(var1)
         tmp = re.findall(b'([1-9][0-9]*-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1]) (2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9])',var1)[0][0].decode()
         timestamp=datetime.datetime.strptime(tmp + '.000000','%Y-%m-%d %H:%M:%S.%f')
-        print(tmp)
         badges = Badge.query.filter_by(timestamp=timestamp,id_ldap_teacher=current_user.id)
-        print("====================")
-        print(badges.all())
-        print("====================")
-        #badges = Badge.query.filter_by(id_ldap_teacher=current_user.id)
         if request.method == 'POST':
             try:
                 #badge = Badge.query.filter_by(id=badges[0].module.id).first()
