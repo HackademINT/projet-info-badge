@@ -16,9 +16,9 @@
         <!-- DataTables Example -->
         <div class="card mb-3">
           <div class="card-header">
-            <b>Session</b>: {{data['Badge'].timestamp}}<br/>
+            <b>Session</b>: {{data['Badge'][0].timestamp}}<br/>
             <b>Module</b>: 
-            <span id="nommodule"> {{data['Badge'].module}} <button class="btn" id="changenommodule"><i class="fa fa-pencil-alt"></i></button></span>
+            <span id="nommodule"> {{data['Badge'][0].module}} <button class="btn" id="changenommodule"><i class="fa fa-pencil-alt"></i></button></span>
             <form method="POST" style="display:none" id="form">
               <select class="browser-default custom-select" name="newModuleId" style="width:auto">
               {% for i in data['Modules'] %}

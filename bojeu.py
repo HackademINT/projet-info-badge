@@ -35,7 +35,7 @@ def default():
 @app.route("/tablessession")
 @login_required
 def loadTablesession():
-    badges = Badge.query.filter_by(id_ldap_teacher=current_user.id).distinct(Badge.timestamp)
+    badges = Badge.query.distinct(Badge.timestamp).group_by(Badge.timestamp).filter_by(id_ldap_teacher=current_user.id)
     data = [(badge, binascii.hexlify(str(badge.timestamp).encode()).decode()) for badge in badges if badge.id_module]
     todo = [(badge, binascii.hexlify(str(badge.timestamp).encode()).decode()) for badge in badges if not badge.id_module]
     distinct_modules = db.session.query(Module).join(Badge).filter_by(id_ldap_teacher=current_user.id).filter(Badge.id_module!=0)
@@ -48,9 +48,14 @@ def loadTableusers(var1):
     #try:
         var=var1
         var1 = binascii.unhexlify(var1)
-        tmp = re.findall(b'([1-9][0-9]*-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1]) (2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9])',var1)
-        badges = Badge.query.filter_by(timestamp=tmp[0][0].decode(),id_ldap_teacher=current_user.id)
-        badges = Badge.query.filter_by(id_ldap_teacher=current_user.id)
+        tmp = re.findall(b'([1-9][0-9]*-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1]) (2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9])',var1)[0][0].decode()
+        timestamp=datetime.datetime.strptime(tmp + '.000000','%Y-%m-%d %H:%M:%S.%f')
+        print(tmp)
+        badges = Badge.query.filter_by(timestamp=timestamp,id_ldap_teacher=current_user.id)
+        print("====================")
+        print(badges.all())
+        print("====================")
+        #badges = Badge.query.filter_by(id_ldap_teacher=current_user.id)
         if request.method == 'POST':
             try:
                 #badge = Badge.query.filter_by(id=badges[0].module.id).first()
@@ -93,6 +98,7 @@ def update_session():
 @app.route("/requete",methods=["POST"])
 def addsession():
     message = request.data.decode()
+    print(message)
     message = message.split(";")
     if len(message) != 4:
         return None
