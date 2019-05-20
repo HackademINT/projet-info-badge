@@ -52,7 +52,7 @@ class LdapUser(db.Model, UserMixin):
     login             = db.Column(db.String(80), nullable=False)
     id_badge          = db.Column(db.Integer, unique=True)#,nullable=False)
     module_accessible = db.relationship('Module', secondary='user_modules')
-    coordinated_module = db.relationship('Module', secondary='coordinator_modules')
+    module_coordinated= db.relationship('Module', secondary='coordinator_modules')
     def __repr__(self):
         return self.login
 
@@ -67,7 +67,9 @@ class UserModules(db.Model):
 class CoordinatorModules(db.Model):
     __tablename__     = 'coordinator_modules'
     id                = db.Column(db.Integer, primary_key=True)
+    ldap_user         = db.relationship('LdapUser')
     ldap_user_id      = db.Column(db.Integer, db.ForeignKey('ldap_user.id',ondelete='CASCADE'))
+    module            = db.relationship('Module')
     module_id         = db.Column(db.Integer, db.ForeignKey('module.id', ondelete='CASCADE'))
 
 # set optional bootswatch theme
@@ -114,7 +116,7 @@ class BadgeModelView(ModelView):
         return redirect(url_for('default'))
 
 
-class LdapUserModelView(ModelView):                                                 
+class UserModulesModelView(ModelView):                                                 
     page_size = 20                                                              
     column_searchable_list = ['ldap_user.login', 'module.nom'] 
     column_exclude_list = []                                                    
@@ -125,6 +127,16 @@ class LdapUserModelView(ModelView):
         flash('Accès interdit ! Merci de vous identifier.', 'error')            
         return redirect(url_for('default'))
 
+class CoordinatorModulesModelView(ModelView):                                                 
+    page_size = 20                                                              
+    column_searchable_list = ['ldap_user.login', 'module.nom'] 
+    column_exclude_list = []                                                    
+    form_excluded_columns = []                                                                                                                                  
+    def is_accessible(self):                                                    
+        return current_user.is_authenticated                                    
+    def inaccessible_callback(self, name, **kwargs):                            
+        flash('Accès interdit ! Merci de vous identifier.', 'error')            
+        return redirect(url_for('default'))
 
 @login_manager.user_loader
 def get_user(user_id):
@@ -134,4 +146,5 @@ def get_user(user_id):
 admin = Admin(app, name='Base de données', template_mode='bootstrap3',index_view=MyAdminView(url='/admin'))                             
 admin.add_view(ModuleModelView(Module, db.session))                                 
 admin.add_view(BadgeModelView(Badge, db.session))                               
-admin.add_view(LdapUserModelView(UserModules, db.session))
+admin.add_view(UserModulesModelView(UserModules, db.session))
+admin.add_view(CoordinatorModulesModelView(CoordinatorModules, db.session))
