@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block main %}
+      <div class="container-fluid">
+
+        <!-- Breadcrumbs-->
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a href="/">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="/tablessession">Tables</a>
+          </li>
+          <li class="breadcrumb-item active">Session</li>
+        </ol>
+
+        <!-- DataTables Example -->
+        <div class="card mb-3">
+          <div class="card-header">
+            <b>Session</b>: {{data['Badge'][0].timestamp}}<br/>
+            <b>Module</b>: 
+            <span id="nommodule"> {{data['Badge'][0].module}} <button class="btn" id="changenommodule"><i class="fa fa-pencil-alt"></i></button></span>
+            <form method="POST" style="display:none" id="form">
+              <select class="browser-default custom-select" name="newModuleId" style="width:auto">
+              {% for i in data['Modules'] %}
+              <option {% if i[1]==data['Badge'].module %} selected {% endif %} value={{i[1]}}> {{i[0]}} </option>
+              {% endfor %}
+              </select>
+              <button class="btn"><i class="fa fa-check"></i></button>
+            </form>
+            <br/>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                  <tr>
+                    <th>Identifiant</th>
+                    <th>Photo</th>
+                  </tr>
+                </thead>
+                <tfoot>
+                  <tr>
+                    <th>Identifiant</th>
+                    <th>Photo</th>
+                  </tr>
+                </tfoot>
+                <tbody>
+                  {% for badge in data['Badge'] %}
+                  <tr>
+                    <td>{{ badge.ldap_student.login }}</td>
+                    <td><a href = "https://trombi.imtbs-tsp.eu/photo.php?uid={{ badge.ldap_student.login }}&h=500&w=500"><img class="img-profile rounded-circle logo-nav" src = "https://trombi.imtbs-tsp.eu/photo.php?uid={{ badge.ldap_student.login }}&h=50&w=50"></img\></a></td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
+        </div>
+
+      </div>
+      <!-- /.container-fluid -->
+
+      <script>
+        var nommodule = document.querySelector("#nommodule")
+        var from = document.querySelector("#form")
+        document.querySelector("#changenommodule").onclick=function(){
+          nommodule.style.display = "none"
+          form.style.display = "inline-block"
+        }
+
+
+
+      </script>
+
+{% endblock %}

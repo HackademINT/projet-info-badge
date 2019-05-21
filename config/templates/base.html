@@ -19,6 +19,7 @@
 
   <!-- Custom styles for this template-->
   <link href="/static/css/sb-admin.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.min.css">
 
 </head>
 
@@ -105,6 +106,11 @@
           <i class="fas fa-fw fa-table"></i>
           <span>Mes sessions</span></a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/coordinateur">
+          <i class="fas fa-fw fa-users"></i>
+          <span>Espace coordinateur</span></a>
+      </li>
     </ul>
 
     <div id="content-wrapper">
@@ -171,7 +177,7 @@
   <!-- Custom -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
   <script src="/static/js/custom.js"></script>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 
 </body>
 {% with messages = get_flashed_messages(with_categories=true) %}

@@ -63,6 +63,8 @@ class UserModules(db.Model):
     ldap_user_id      = db.Column(db.Integer, db.ForeignKey('ldap_user.id',ondelete='CASCADE'))
     module            = db.relationship('Module')
     module_id         = db.Column(db.Integer, db.ForeignKey('module.id', ondelete='CASCADE'))
+    def __repr__(self):
+        return self.ldap_user.login
 
 class CoordinatorModules(db.Model):
     __tablename__     = 'coordinator_modules'
@@ -78,7 +80,6 @@ class CoordinatorModules(db.Model):
 class MyAdminView(AdminIndexView):
     @expose('/')
     def index(self):
-        print("test")
         return self.render('admin/index.html')
     def is_accessible(self):
         return current_user.is_authenticated
