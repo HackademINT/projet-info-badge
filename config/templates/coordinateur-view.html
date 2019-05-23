@@ -20,26 +20,28 @@
         <div class="card mb-3">
           <div class="card-header">
             <i class="fas fa-table"></i>
-            Mes modules</div>
+          Feuille de présence</div>
           <div class="card-body">
             <div class="table-responsive">
               <table class="table table-bordered" id="dataTable-custom" width="100%" cellspacing="0">
                 <thead>
                   <tr>
-                    <th>Module</th>
+                    <th>Identifiant</th>
+                    <th>Photo</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {% for module in modules %}
+                  {% for badge in badges %}
                   <tr>
                     <td><a href="/module/{{ module.id }}">{{ module.nom }}</a></td>
+                    <td><a href = "https://trombi.imtbs-tsp.eu/photo.php?uid={{ badge.ldap_student.login }}&h=500&w=500"><img class="img-profile rounded-circle logo-nav" src = "https://trombi.imtbs-tsp.eu/photo.php?uid={{ badge.ldap_student.login }}&h=50&w=50"></img\></a></td>
                   </tr>
                   {% endfor %}
                 </tbody>
               </table>
             </div>
           </div>
-          <div class="card-footer small text-muted">Total: {{ modules|count }} modules</div>
+          <div class="card-footer small text-muted">Total: {{ badges|count }} modules</div>
         </div>
 
         <!-- Area Chart Example

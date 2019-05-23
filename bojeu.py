@@ -14,8 +14,7 @@ import binascii
 import re 
 import datetime
 import json
-
-tokens = ["thesupertoken"]
+import config.secret
 
 def login_required(f):
     @wraps(f)
@@ -50,9 +49,6 @@ def loadTablesession():
     badges = Badge.query.distinct(Badge.timestamp).group_by(Badge.timestamp).filter_by(id_ldap_teacher=current_user.id)
     data = [(badge, binascii.hexlify(str(badge.timestamp).encode()).decode()) for badge in badges if badge.id_module]
     todo = [(badge, binascii.hexlify(str(badge.timestamp).encode()).decode()) for badge in badges if not badge.id_module]
-    for mod in current_user.module_coordinated:
-        badges = Badge.query.distinct(Badge.timestamp).group_by(Badge.timestamp).filter(Badge.id_ldap_teacher!=current_user.id).filter_by(module=mod).all()
-        data += [(badge, binascii.hexlify(str(badge.timestamp).encode()).decode()) for badge in badges if badge.id_module]
     distinct_modules = current_user.module_accessible
     return render_template('tablessession.html', data=data, todo=todo, modules=distinct_modules)
 
@@ -71,9 +67,11 @@ def loadTableusers(var1):
         #    badges += [Badge.query.filter_by(timestamp=timestamp,module=mod).filter(Badge.id_ldap_teacher!=current_user.id).all]
         if request.method == 'POST':
             try:
-                for badge in list(badges):
-                    badge.id_module = request.form['newModuleId']
-                    db.session.commit()
+                if request.form['newModuleId'] in [str(i) for i in current_user.module_accessible]: 
+                #return redirect('/tablesusers/{}'.format(var))
+                    for badge in list(badges):
+                        badge.id_module = request.form['newModuleId']
+                        db.session.commit()
                 return redirect('/tablesusers/{}'.format(var))
             except Exception as e:
                 flash("La base n'a pas pu être modifiée",'error')
@@ -85,7 +83,7 @@ def loadTableusers(var1):
         data['Modules'] = [(mod.nom, mod.id) for mod in current_user.module_accessible]
         return render_template('tablesusers.html', data=data)
     #except Exception as e:
-    #    flash("Le timestamp n'est pas valide",'error')
+    #    flash("L'url n'est pas valide",'error')
     #    return redirect('/tablessession')
 
 
@@ -93,7 +91,7 @@ def loadTableusers(var1):
 @login_required
 def update_session():
     id_module = request.form['module']
-    if id_module == "Sélectionnez le bon module":
+    if not(id_module in [str(i.id) for i in current_user.module_accessible]):
         flash('Veuillez sélectionner un module valide', 'error')
     else:
         kw = {'id_ldap_teacher': current_user.id, 
@@ -110,11 +108,14 @@ def update_session():
 @app.route("/requete",methods=["POST"])
 def addsession():
     try:
-        message = request.data.decode()
+        premess = hex(pow(int(request.data.decode()), config.secret.d, config.secret.n))[2:]
+        if len(premess)%2:
+            premess = "0" + premess
+        message = binascii.unhexlify(premess).decode()
         message = message.split(";")
-        if len(message) != 4:
+        if len(message) != 3:
             return None
-        id_badge_student, id_badge_teacher, date, token = message
+        id_badge_student, id_badge_teacher, date = message
         id_badge_student = int(id_badge_student, 16)
         id_badge_teacher = int(id_badge_teacher, 16)
         date=datetime.datetime.strptime(date + '.000000','%Y-%m-%d %H:%M:%S.%f')

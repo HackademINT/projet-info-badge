@@ -10,8 +10,8 @@ var myLineChart = new Chart(ctx, {
     labels: labels,
     datasets: [{
       label: 'Présence',
-      backgroundColor: "rgba(11,102,35,1)",
-      borderColor: "rgba(11,102,35,1)",
+      backgroundColor: "rgba(11,100,255,1)",
+      // borderColor: "rgba(11,102,255,1)",
       data: data,
     }],
   },
