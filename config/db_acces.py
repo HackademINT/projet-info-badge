@@ -12,7 +12,7 @@ from config.secret import secretkey
 app = Flask(__name__)
 db = SQLAlchemy(app)
 app.config['SECRET_KEY'] = secretkey
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres@localhost/postgres'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///badge.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -40,6 +40,7 @@ class Badge(db.Model):
     
     module          = db.relationship('Module')
     id_module       = db.Column(db.Integer(), db.ForeignKey('module.id'), nullable=False)
+
     def __repr__(self):
         return '<{} {} ({} {}): {} >' .format(self.ldap_teacher.login, self.timestamp,
                                               self.id_module, self.module.nom, 

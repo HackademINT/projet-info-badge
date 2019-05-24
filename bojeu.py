@@ -16,6 +16,7 @@ import datetime
 import json
 import config.secret
 
+
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -24,18 +25,28 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+
+def coordinator_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if len(current_user.module_coordinated) == 0:
+            flash('Vous n\'avez pas les droits pour accéder à cette page', 'error')
+            return redirect('/')
+        return f(*args, **kwargs)
+    return decorated_function
+
+
 @app.route("/")
 @login_required
 def default():
-    modules = db.session.query(Module).join(Badge).\
-            filter_by(id_ldap_teacher=current_user.id, 
-                      id_module=Module.id).filter(Module.id!=0).all()
+    modules = current_user.module_accessible
     todo = Badge.query.distinct(Badge.timestamp).group_by(Badge.timestamp).filter_by(id_ldap_teacher=current_user.id).filter(Badge.id_module==0).count()
     return render_template('index.html', modules=modules, todo=todo)
 
 
 @app.route("/coordinateur")
 @login_required
+@coordinator_required
 def coordinateur():
     modules = db.session.query(Module).join(Badge).\
             filter_by(id_module=Module.id).filter(Module.id!=0).all()
@@ -67,7 +78,7 @@ def loadTableusers(var1):
         #    badges += [Badge.query.filter_by(timestamp=timestamp,module=mod).filter(Badge.id_ldap_teacher!=current_user.id).all]
         if request.method == 'POST':
             try:
-                if request.form['newModuleId'] in [str(i) for i in current_user.module_accessible]: 
+                if request.form['newModuleId'] in [str(i.id) for i in current_user.module_accessible]: 
                 #return redirect('/tablesusers/{}'.format(var))
                     for badge in list(badges):
                         badge.id_module = request.form['newModuleId']
@@ -84,7 +95,7 @@ def loadTableusers(var1):
         return render_template('tablesusers.html', data=data)
     #except Exception as e:
     #    flash("L'url n'est pas valide",'error')
-    #    return redirect('/tablessession')
+        return redirect('/tablessession')
 
 
 @app.route("/update-module", methods=["POST"])
@@ -107,12 +118,11 @@ def update_session():
 
 @app.route("/requete",methods=["POST"])
 def addsession():
-    try:
+    #try:
         premess = hex(pow(int(request.data.decode()), config.secret.d, config.secret.n))[2:]
         if len(premess)%2:
             premess = "0" + premess
-        message = binascii.unhexlify(premess).decode()
-        message = message.split(";")
+        message = binascii.unhexlify(premess).decode().split(";")
         if len(message) != 3:
             return None
         id_badge_student, id_badge_teacher, date = message
@@ -124,16 +134,18 @@ def addsession():
         #    ldap_teacher = LdapUser(id_badge=id_badge_teacher)
         id_ldap_teacher = ldap_teacher.id 
         ldap_student = LdapUser.query.filter_by(id_badge=id_badge_student).first()
-        if ldap_student:
-            id_ldap_student = ldap_student.id 
-        else:
+        #if ldap_student:
+        id_ldap_student = ldap_student.id 
+        #else:
             #A Modifier
-            id_ldap_student = LdapUser.query.first().id 
-        badge = Badge(id_ldap_teacher=id_ldap_teacher,id_ldap_student=id_ldap_student,timestamp=date,id_module=0)
-        db.session.add(badge)
-        db.session.commit()
-    except:
-        pass
+            #id_ldap_student = LdapUser.query.first().id 
+        if not(Badge.query.filter_by(id_ldap_teacher = id_ldap_teacher, id_ldap_student=id_ldap_student, timestamp=date).first()):   
+            badge = Badge(id_ldap_teacher=id_ldap_teacher,id_ldap_student=id_ldap_student,timestamp=date,id_module=0)
+            db.session.add(badge)
+            db.session.commit()
+        return render_template('index.html')
+    #except:
+    #    pass
 
 
     
@@ -180,6 +192,7 @@ def module(id_mod):
 
 @app.route("/coordinateur-module/<id_mod>", methods=["GET", "POST"])
 @login_required
+@coordinator_required
 def coordinateur_module(id_mod): 
     # charge module
     module = db.session.query(Module).get(id_mod)
@@ -221,6 +234,7 @@ def coordinateur_module(id_mod):
 
 @app.route("/intervenant/<id_module>/<id_user>")
 @login_required
+@coordinator_required
 def user_table(id_module, id_user):     
     module = Module.query.get(id_module)
     intervenant = LdapUser.query.get(id_user)
@@ -247,4 +261,4 @@ def erreur404(error):
 
 if __name__ == "__main__":
     db.create_all()
-    app.run(host="0.0.0.0", port=8083, debug=True)
+    app.run(host="0.0.0.0", port=3002, debug=True)
