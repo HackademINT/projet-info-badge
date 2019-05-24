@@ -67,8 +67,8 @@ def loadTablesession():
 @app.route("/tablesusers/<var1>", methods=["GET","POST"])
 @login_required
 def loadTableusers(var1):
-        data = {}
-    #try:
+    data = {}
+    try:
         var=var1
         var1 = binascii.unhexlify(var1)
         tmp = re.findall(b'([1-9][0-9]*-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1]) (2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9])',var1)[0][0].decode()
@@ -93,8 +93,8 @@ def loadTableusers(var1):
         data['Modules']=db.session.query(Module.nom, Module.id).join(Badge).filter_by(id_ldap_teacher=current_user.id).filter(Module.id!=0).distinct(Module.id)
         data['Modules'] = [(mod.nom, mod.id) for mod in current_user.module_accessible]
         return render_template('tablesusers.html', data=data)
-    #except Exception as e:
-    #    flash("L'url n'est pas valide",'error')
+    except Exception as e:
+        flash("L'url n'est pas valide",'error')
         return redirect('/tablessession')
 
 
@@ -111,7 +111,7 @@ def update_session():
         for badge in badges:
             badge.id_module = id_module
         db.session.commit()
-        flash('La session du {} a bien été associée au module {}'.format(request.form['timestamp'], Module.query.get(request.form['module']).nom))
+        flash('La session du {} a bien été associée au module {}'.format(request.form['timestamp'], Module.query.get(request.form['module']).nom), 'success')
     return redirect('/tablessession')
 
 
@@ -179,15 +179,20 @@ def logout():
 @app.route("/module/<id_mod>")
 @login_required
 def module(id_mod): 
-    nomModule = db.session.query(Module).get(id_mod).nom
-    eleves = db.session.query(LdapUser.login).\
-            join(Badge, Badge.id_ldap_student==LdapUser.id).filter_by(id_module=id_mod).all()
-    eleves = [eleve[0] for eleve in eleves]
-    eleves_distinct = list(set([(eleve, eleves.count(eleve)) for eleve in eleves]))
-    liste_eleves = [eleve[0] for eleve in eleves_distinct]
-    liste_presences = [eleve[1] for eleve in eleves_distinct]
-    return render_template('module.html', nomModule=nomModule,
-                           labels=liste_eleves, data=liste_presences)
+    module = db.session.query(Module).get(id_mod)
+    if module in current_user.module_accessible:
+        nomModule = module.nom
+        eleves = db.session.query(LdapUser.login).\
+                join(Badge, Badge.id_ldap_student==LdapUser.id).filter_by(id_module=id_mod).all()
+        eleves = [eleve[0] for eleve in eleves]
+        eleves_distinct = list(set([(eleve, eleves.count(eleve)) for eleve in eleves]))
+        liste_eleves = [eleve[0] for eleve in eleves_distinct]
+        liste_presences = [eleve[1] for eleve in eleves_distinct]
+        return render_template('module.html', nomModule=nomModule,
+                               labels=liste_eleves, data=liste_presences)
+    else:
+        flash('Vous n\'avez pas les droits pour accéder à cette page', 'error')
+        return redirect(url_for('default'))
 
 
 @app.route("/coordinateur-module/<id_mod>", methods=["GET", "POST"])
@@ -197,39 +202,45 @@ def coordinateur_module(id_mod):
     # charge module
     module = db.session.query(Module).get(id_mod)
     
-    # charge les intervenants du module
-    intervenants = [intervenant for intervenant in LdapUser.query.all() if module in intervenant.module_accessible]
-    intervenants_data = [{'user': intervenant, 
-                  'nb_sessions': db.session.query(Badge.timestamp).filter_by(id_module=id_mod, id_ldap_teacher=intervenant.id).distinct(Badge.timestamp).count()} for intervenant in intervenants]
+    if module in current_user.module_coordinated:
 
-    # charge les eleves enregistres du module
-    eleves = db.session.query(LdapUser.login).\
-            join(Badge, Badge.id_ldap_student==LdapUser.id).filter_by(id_module=id_mod).all()
-    eleves = [eleve[0] for eleve in eleves]
-    eleves_distinct = list(set([(eleve, eleves.count(eleve)) for eleve in eleves]))
-    liste_eleves = [eleve[0] for eleve in eleves_distinct]
-    liste_presences = [eleve[1] for eleve in eleves_distinct]
-
-    # cas requete post
-    if request.method == "POST":
-        intervenant_change = LdapUser.query.get(request.form["id_ldap_intervenant"])
-        if intervenant_change in intervenants:
-            UserModules.query.filter_by(ldap_user_id=request.form["id_ldap_intervenant"], module_id=id_mod).delete()
-        else:
-            new_entry = UserModules(ldap_user=LdapUser.query.get(request.form["id_ldap_intervenant"]), module=Module.query.get(id_mod))
-            db.session.add(new_entry)
-        db.session.commit()
-
+        # charge les intervenants du module
         intervenants = [intervenant for intervenant in LdapUser.query.all() if module in intervenant.module_accessible]
         intervenants_data = [{'user': intervenant, 
                       'nb_sessions': db.session.query(Badge.timestamp).filter_by(id_module=id_mod, id_ldap_teacher=intervenant.id).distinct(Badge.timestamp).count()} for intervenant in intervenants]
-    
-    # charge intervenants non ajoutes
-    intervenants_possibles = [user for user in LdapUser.query.all() if user not in intervenants]
-    return render_template('coordinateur-module.html', module=module,
-                           intervenants=intervenants_data, 
-                           possible=intervenants_possibles, 
-                           labels=liste_eleves, data=liste_presences)
+
+        # charge les eleves enregistres du module
+        eleves = db.session.query(LdapUser.login).\
+                join(Badge, Badge.id_ldap_student==LdapUser.id).filter_by(id_module=id_mod).all()
+        eleves = [eleve[0] for eleve in eleves]
+        eleves_distinct = list(set([(eleve, eleves.count(eleve)) for eleve in eleves]))
+        liste_eleves = [eleve[0] for eleve in eleves_distinct]
+        liste_presences = [eleve[1] for eleve in eleves_distinct]
+
+        # cas requete post
+        if request.method == "POST":
+            intervenant_change = LdapUser.query.get(request.form["id_ldap_intervenant"])
+            if intervenant_change in intervenants:
+                UserModules.query.filter_by(ldap_user_id=request.form["id_ldap_intervenant"], module_id=id_mod).delete()
+            else:
+                new_entry = UserModules(ldap_user=LdapUser.query.get(request.form["id_ldap_intervenant"]), module=Module.query.get(id_mod))
+                db.session.add(new_entry)
+            db.session.commit()
+
+            intervenants = [intervenant for intervenant in LdapUser.query.all() if module in intervenant.module_accessible]
+            intervenants_data = [{'user': intervenant, 
+                          'nb_sessions': db.session.query(Badge.timestamp).filter_by(id_module=id_mod, id_ldap_teacher=intervenant.id).distinct(Badge.timestamp).count()} for intervenant in intervenants]
+        
+        # charge intervenants non ajoutes
+        intervenants_possibles = [user for user in LdapUser.query.all() if user not in intervenants]
+        return render_template('coordinateur-module.html', module=module,
+                               intervenants=intervenants_data, 
+                               possible=intervenants_possibles, 
+                               labels=liste_eleves, data=liste_presences)
+
+    else:
+        flash('Vous n\'avez pas les droits pour accéder à cette page', 'error')
+        return redirect(url_for('default'))
 
 
 @app.route("/intervenant/<id_module>/<id_user>")
@@ -237,12 +248,16 @@ def coordinateur_module(id_mod):
 @coordinator_required
 def user_table(id_module, id_user):     
     module = Module.query.get(id_module)
-    intervenant = LdapUser.query.get(id_user)
-    timestamps = db.session.query(Badge.timestamp).filter_by(id_ldap_teacher=id_user, id_module=id_module).distinct(Badge.timestamp, Badge.id_ldap_teacher).all()
-    presences = [db.session.query(Badge).filter_by(timestamp=t[0], id_module=id_module, id_ldap_teacher=id_user).count() for t in timestamps]
-    sessions = [{'timestamp': timestamps[i][0], 'presence': presences[i]} for i in range(len(timestamps))]
-    return render_template('intervenant.html', module=module, intervenant=intervenant,
-                           sessions=sessions)
+    if module in current_user.module_coordinated:
+        intervenant = LdapUser.query.get(id_user)
+        timestamps = db.session.query(Badge.timestamp).filter_by(id_ldap_teacher=id_user, id_module=id_module).distinct(Badge.timestamp, Badge.id_ldap_teacher).all()
+        presences = [db.session.query(Badge).filter_by(timestamp=t[0], id_module=id_module, id_ldap_teacher=id_user).count() for t in timestamps]
+        sessions = [{'timestamp': timestamps[i][0], 'presence': presences[i]} for i in range(len(timestamps))]
+        return render_template('intervenant.html', module=module, intervenant=intervenant,
+                               sessions=sessions)
+    else:
+        flash('Vous n\'avez pas les droits pour accéder à cette page', 'error')
+        return redirect(url_for('default'))
 
 
 @app.route("/<var1>")
