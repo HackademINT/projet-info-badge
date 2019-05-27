@@ -5,13 +5,13 @@
         <!-- Breadcrumbs-->
         <ol class="breadcrumb">
           <li class="breadcrumb-item">
-            <a href="/coordinateur">Espace coordinateur</a>
+            <a href="/coordonnateur">Espace coordonnateur</a>
           </li>
           <li class="breadcrumb-item active">
-            <a href="/coordinateur-module/{{ module.id }}">{{ module.nom }}</a>
+            <a href="/coordonnateur-module/{{ data['module'].id }}">{{ data['module'].nom }}</a>
           </li>
           <li class="breadcrumb-item active">
-            {{ intervenant.login }}
+            {{ data['intervenant'].login }}
           </li>
         </ol>
 
@@ -19,7 +19,7 @@
 	<div class="card mb-3">
 	  <div class="card-header">
 	    <i class="fas fa-table"></i>
-            Sessions de l'intervenant {{ intervenant.login }}
+            Sessions de l'intervenant {{ data['intervenant'].login }}
 	  </div>
 	  <div class="card-body">
 	    <div class="table-responsive">
@@ -28,13 +28,15 @@
 		  <tr>
 		    <th>Timestamp</th>
 		    <th>Présences</th>
+		    <th>Description</th>
 		  </tr>
 		</thead>
 		<tbody>
-                  {% for session in sessions %}
+                  {% for session in data['sessions'] %}
                   <tr>
-                    <td>{{ session.timestamp }}</td>
-                    <td>{{ session.presence }}</td>
+                    <td>{{ session['timestamp'] }}</td>
+                    <td>{{ session['presence'] }}</td>
+                    <td>{%if session['description'] %}{{ session['description'] }}{% endif %}</td>
                   </tr>
                   {% endfor %}
 		</tbody>

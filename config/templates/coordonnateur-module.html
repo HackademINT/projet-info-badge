@@ -5,15 +5,15 @@
         <!-- Breadcrumbs-->
         <ol class="breadcrumb">
           <li class="breadcrumb-item">
-            <a href="/coordinateur">Espace coordinateur</a>
+            <a href="/coordonnateur">Espace coordonnateur</a>
           </li>
-          <li class="breadcrumb-item active">{{ module.nom }}</li>
+          <li class="breadcrumb-item active">{{ data['module'].nom }}</li>
         </ol>
 
         <div class="card mb-3">
           <div class="card-header">
             <i class="fas fa-user-group"></i>
-              Intervenants du module {{ module.nom }}
+              Intervenants du module {{ data['module'].nom }}
           </div>
           <div class="card-body">
             <div class="table-responsive">
@@ -26,38 +26,25 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% for intervenant in intervenants %}
+                  {% for intervenant in data['intervenants'] %}
                     <tr>
-                      <form method="POST" name="{{ intervenant.user.login }}" id="{{ intervenant.user.login }}" action="/coordinateur-module/{{ module.id }}">
+                      <form method="POST" name="{{ intervenant['user'].login }}" id="{{ intervenant['user'].login }}" action="/coordonnateur-module/{{ data['module'].id }}">
                         <td>
-                          {{ intervenant.user.login }}
-                          <input type="hidden" name="id_ldap_intervenant" value="{{ intervenant.user.id }}">
+                          {{ intervenant['user'].ldap_teacher.login }}
+                          <input type="hidden" name="id_ldap_intervenant" value="{{ intervenant['user'].id }}">
                         </td>
-                        <td>{{ intervenant.nb_sessions }}</td>
+                        <td>{{ intervenant['nb_sessions'] }}</td>
                         <td>
-                          <a href="/intervenant/{{ module.id }}/{{ intervenant.user.id }}"<button class="btn btn-sm btn-outline-warning" aria-pressed=true><i class="fa fa-eye"></i></button></a>
-                          <button class="btn btn-sm btn-outline-danger" form="{{ intervenant.user.login }}" role="button" aria-pressed="true" onclick="return confirm('Etes-vous sûr de vouloir supprimer cet intervenant?');"><i class="fa fa-trash"></i></button>
+                          <a href="/intervenant/{{ data['module'].id }}/{{ intervenant['user'].ldap_teacher.id }}"<button class="btn btn-sm btn-outline-warning" aria-pressed=true><i class="fa fa-eye"></i></button></a>
                         </td>
                       </form>
                     </tr>
                   {% endfor %}
                 </tbody>
               </table>
-
-              <center>
-                <span id="intervenants"><button class="btn btn-outline-primary" id="ajouteIntervenant" aria-pressed="true"><i class="fa fa-plus"> Ajouter un intervenant</i></button></span>
-                <form method="POST" style="display:none" id="form">
-                  <select class="selectpicker" name="id_ldap_intervenant" style="width:auto" data-live-search="true" data-width="fit" data-style="btn-outline-primary">
-                    {% for people in possible %}
-                    <option value="{{ people.id }}">{{ people.login }}</option>
-                    {% endfor %}
-                  </select> 
-                  <button class="btn btn-outline-success"><i class="fa fa-check"> Ajouter cet intervenant</i></button>
-                </form>
-              </center>
             </div>
           </div>
-          <div class="card-footer small text-muted">Total: {{ intervenants|count }} intervenants</div>
+          <div class="card-footer small text-muted">Total: {{ data['intervenants'] |count }} intervenants</div>
         </div>
         
 
@@ -68,12 +55,12 @@
           </div>
           <div class="card-body">
             <script>
-              var data={{ data|safe }};
-              var labels={{ labels|safe }};
+              var data={{ data['data'] |safe }};
+              var labels={{ data['labels'] |safe }};
             </script>
             <canvas id="myHorizontalChart" width="100%" height="50"></canvas>
           </div>
-          <div class="card-footer small text-muted">Total: {{ labels|count }} étudiants présents au moins une fois</div>
+          <div class="card-footer small text-muted">Total: {{ data['labels']|count }} étudiants présents au moins une fois</div>
           
           <!--
           <div class="col-lg-4">

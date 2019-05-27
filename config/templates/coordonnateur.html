@@ -8,7 +8,7 @@
           <!-- <li class="breadcrumb-item">
             <a href="#">Dashboard</a>
           </li> -->
-          <li class="breadcrumb-item active">Espace coordinateur</li>
+          <li class="breadcrumb-item active">Espace coordonnateur</li>
         </ol>
 
         <div class="card mb-3">
@@ -24,9 +24,9 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% for module in modules %}
+                  {% for module in data['modules'] %}
                   <tr>
-                    <td><a href="/coordinateur-module/{{ module.id }}">{{ module.nom }}</a></td>
+                    <td><a href="/coordonnateur-module/{{ module.id }}">{{ module.nom }}</a></td>
                   </tr>
                   {% endfor %}
                 </tbody>

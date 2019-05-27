@@ -11,9 +11,9 @@
           <li class="breadcrumb-item active">Accueil</li>
         </ol>
 
-    {% if todo != 0 %}
+    {% if data['todo'] != 0 %}
     <div class="alert alert-danger" role="alert">
-      Vous avez {{ todo }} session(s) non attribuée(s), cliquez <a href="/tablessession" class="alert-link">ici</a> pour régulariser votre situation.
+      Vous avez {{ data['todo'] }} session(s) non attribuée(s), cliquez <a href="/tablessession" class="alert-link">ici</a> pour régulariser votre situation.
     </div>
     {% endif %}
 
@@ -30,16 +30,16 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% for module in modules %}
+                  {% for session in data['modules'] %}
                   <tr>
-                    <td><a href="/module/{{ module.id }}">{{ module.nom }}</a></td>
+                    <td><a href="/module/{{ session.module.id }}">{{ session.module.nom }}</a></td>
                   </tr>
                   {% endfor %}
                 </tbody>
               </table>
             </div>
           </div>
-          <div class="card-footer small text-muted">Total: {{ modules|count }} modules</div>
+          <div class="card-footer small text-muted">Total: {{ session.modules|count }} modules</div>
         </div>
 
         <!-- Area Chart Example

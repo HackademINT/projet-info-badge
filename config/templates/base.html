@@ -106,11 +106,14 @@
           <i class="fas fa-fw fa-table"></i>
           <span>Mes sessions</span></a>
       </li>
+      {% if (current_user.coordonnated| count) > 0 %}
       <li class="nav-item">
-        <a class="nav-link" href="/coordinateur">
+        <a class="nav-link" href="/coordonnateur">
           <i class="fas fa-fw fa-users"></i>
-          <span>Espace coordinateur</span></a>
+          <span>Espace coordonnateur</span></a>
+      {% endif %}
       </li>
+
     </ul>
 
     <div id="content-wrapper">

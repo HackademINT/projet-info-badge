@@ -7,7 +7,7 @@
           <li class="breadcrumb-item">
             <a href="/">Accueil</a>
           </li>
-          <li class="breadcrumb-item active">{{ nomModule }}</li>
+          <li class="breadcrumb-item active">{{ data['module'].nom }}</li>
         </ol>
 
         <!-- Area Chart Example
@@ -27,15 +27,15 @@
             <div class="card mb-3">
               <div class="card-header">
                 <i class="fas fa-chart-bar"></i>
-                {{ nomModule }}</div>
+                {{ data['module'].nom }}</div>
               <div class="card-body">
                 <script>
-                  var data={{ data|safe }};
-                  var labels={{ labels|safe }};
+                  var data={{ data['data'] |safe }};
+                  var labels={{ data['labels'] |safe }};
                 </script>
                 <canvas id="myHorizontalChart" width="100%" height="50"></canvas>
               </div>
-              <div class="card-footer small text-muted">Total: {{ labels|count }} étudiants présents au moins une fois</div>
+              <div class="card-footer small text-muted">Total: {{ data['labels'] |count }} étudiants présents au moins une fois</div>
             </div>
           </div>
           

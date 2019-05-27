@@ -9,7 +9,7 @@
           </li>
           <li class="breadcrumb-item active">Mes sessions</li>
         </ol>
-
+        {% if (data['undefined']| count) > 0 %}
         <div class="card mb-3">
           <div class="card-header">
             <i class="fas fa-table"></i>
@@ -22,28 +22,35 @@
                   <tr>
                     <th>Timestamp</th>
                     <th>Module</th>
+                    <th>Description</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {% for item in todo %}
+                  {% for item in data['undefined'] %}
                   <tr>
-                    <form id="{{ item[0].timestamp }}" name="{{ item[0].timestamp }}" action="/update-module" method="post">
-                      <td>
-                        <a href="/tablesusers/{{ item[1] }}">{{ item[0].timestamp }}</a>
-                        <input type="hidden" name="timestamp" value="{{ item[0].timestamp }}" />
-                      </td>
-                      <td>
-                        <div class="input-group">
-                          <select name="module" class="custom-select custom-select-sm">
-                            <option selected>Sélectionnez le bon module</option>
-                            {% for module in modules %}
-                              <option value="{{ module.id }}">{{ module.nom }}</option>
+                    <td>
+                      <a href="/tablesusers/{{ item.id_session }}">{{ item.timestamp }}</a>
+                    </td>
+                    <td>
+                      <div class="input-group">
+                        <form id="module{{ item.module.id }}" name="module{{ item.module.id }}" action="/tablessession" method="post">
+                          <select name="newModuleId" class="selectpicker" style="width:auto" data-live-search="true" data-width="fit" data-container="body">
+                            <option selected value=0>Selectionnez un module</option>
+                            {% for module in data['modules'] %}
+                            <option value="{{ module.id }}">{{ module.nom }}</option>
                             {% endfor %}
                           </select>
-                          <button class="btn btn-outline-success btn-sm" form="{{ item[0].timestamp }}" role="button" aria-pressed="true"><i class="fa fa-check"></i></button>
-                        </div>
-                      </td>
-                      </form>
+                          <input type=hidden name="type" value="moduleid">
+                          <input type=hidden name="id_session" value="{{item.id_session}}">
+                          <button class="btn btn-outline-success btn-sm" form="module{{ item.module.id }}" role="button" aria-pressed="true"><i class="fa fa-check"></i></button>
+                        </form>
+                      </div>
+                    </td>
+                    <td>
+                    {% if item.description %}
+                      {{ item.description }} 
+                    {% endif %}
+                    </td>
                   </tr>
                   {% endfor %}
                 </tbody>
@@ -52,7 +59,7 @@
           </div>
           <div class="card-footer small text-muted"></div>
         </div>
-
+        {% endif %}
         <div class="card mb-3">
           <div class="card-header">
             <i class="fas fa-table"></i>
@@ -65,13 +72,45 @@
                   <tr>
                     <th>Timestamp</th>
                     <th>Module</th>
+                    <th>Description</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {% for item in data %}
+                  {% for item in data['defined'] %}
                   <tr>
-                    <td><a href="/tablesusers/{{ item[1] }}">{{ item[0].timestamp }}</a></td>
-                    <td>{{ item[0].module.nom }}</td>
+                    <td>
+                      <a href="/tablesusers/{{ item.id_session }}">{{ item.timestamp }}</a>
+                    </td>
+                    <td>
+                      <div class="input-group">
+                      <span> 
+                        <button class="btn modif"><i class="fa fa-pencil-alt"></i></button>
+                        {{ item.module.nom }}</span>
+                        <form method="POST" style="display:none">
+                          <select name="newModuleId" class="selectpicker" style="width:auto" data-live-search="true" data-width="fit" data-container="body">
+                            {% for module in data['modules'] %}
+                            <option {% if module.id==item.module.id %} selected {% endif %} value="{{ module.id }}">{{ module.nom }}</option>
+                            {% endfor %}
+                          </select>
+                          <input type=hidden name="type" value="moduleid">
+                          <input type=hidden name="id_session" value="{{item.id_session}}">
+                          <button class="btn btn-outline-success btn-sm" role="button" aria-pressed="true"><i class="fa fa-check"></i></button>
+                        </form>
+                      </div>
+                    </td>
+                    <td>
+                      <span> 
+                        <button class="btn modif"><i class="fa fa-pencil-alt"></i></button>
+                        {% if item.description %}
+                          {{item.description}} 
+                          {% endif %}</span>
+                      <form method="POST" style="display:none">
+                        <input type=text name="newDescription" maxlength="100" value="{% if item.description %}{{item.description}}{% endif %}"></textarea>
+                        <input type=hidden name="type" value="description">
+                        <input type=hidden name="id_session" value="{{item.id_session}}">
+                        <button class="btn"><i class="fa fa-check"></i></button>
+                      </form>
+                    </td>
                   </tr>
                   {% endfor %}
                 </tbody>
@@ -83,4 +122,19 @@
 
       </div>
       <!-- /.container-fluid -->
+<script>
+  var boutons = document.querySelectorAll(".modif");
+  for(var i = 0; i < boutons.length; i++){
+    var bouton = boutons[i];
+    bouton.onclick = function() {
+      var cacher = this.parentNode;
+      var apparaitre = cacher.parentNode.querySelector("form");
+      cacher.style.display = "none"
+      apparaitre.style.display = "inline-block"
+
+    }
+
+  }
+</script>
 {% endblock %}
+

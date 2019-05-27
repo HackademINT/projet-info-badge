@@ -16,18 +16,30 @@
         <!-- DataTables Example -->
         <div class="card mb-3">
           <div class="card-header">
-            <b>Session</b>: {{data['Badge'][0].timestamp}}<br/>
+            <b>Session</b>: {{data['Badge'][0].session.timestamp}}<br/>
             <b>Module</b>: 
-            <span id="nommodule"> {{data['Badge'][0].module}} <button class="btn" id="changenommodule"><i class="fa fa-pencil-alt"></i></button></span>
+            <span id="nommodule"> {{data['Badge'][0].session.module}} <button class="btn" id="changenommodule"><i class="fa fa-pencil-alt"></i></button></span>
             <form method="POST" style="display:none" id="form">
-              <select class="browser-default custom-select" name="newModuleId" style="width:auto">
+              <select name="newModuleId" style="width:auto" class="selectpicker" data-live-search="true">
               {% for i in data['Modules'] %}
-              <option {% if i[1]==data['Badge'].module %} selected {% endif %} value={{i[1]}}> {{i[0]}} </option>
+              <option {% if i[1]==data['Badge'][0].session.module.id %} selected {% endif %} value={{i[1]}}> {{i[0]}} </option>
               {% endfor %}
               </select>
+              <input type=hidden value="moduleid" name="type">
               <button class="btn"><i class="fa fa-check"></i></button>
             </form>
             <br/>
+            <b>Commentaire</b>: 
+            <span id="description"> 
+              {% if data['Badge'][0].session.description %}
+                {{data['Badge'][0].session.description}} 
+              {% endif %}
+              <button class="btn" id="changeDescription"><i class="fa fa-pencil-alt"></i></button></span>
+            <form method="POST" style="display:none" id="form1">
+              <input type=text name="newDescription" maxlength="100" value="{% if data['Badge'][0].session.description %}{{data['Badge'][0].session.description}}{% endif %}"></textarea>
+              <input type=hidden value="description" name="type">
+              <button class="btn"><i class="fa fa-check"></i></button>
+            </form>
           </div>
           <div class="card-body">
             <div class="table-responsive">
@@ -55,16 +67,20 @@
       </div>
       <!-- /.container-fluid -->
 
-      <script>
-        var nommodule = document.querySelector("#nommodule")
-        var from = document.querySelector("#form")
-        document.querySelector("#changenommodule").onclick=function(){
-          nommodule.style.display = "none"
-          form.style.display = "inline-block"
-        }
+<script>
+  var nommodule = document.querySelector("#nommodule")
+  var from = document.querySelector("#form")
+  document.querySelector("#changenommodule").onclick=function(){
+    nommodule.style.display = "none"
+    form.style.display = "inline-block"
+  }
 
-
-
-      </script>
+  var description = document.querySelector("#description")
+  var from1 = document.querySelector("#form1")
+  document.querySelector("#changeDescription").onclick=function(){
+    description.style.display = "none"
+    form1.style.display = "inline-block"
+  }
+</script>
 
 {% endblock %}
