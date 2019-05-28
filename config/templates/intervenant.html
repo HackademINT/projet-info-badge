@@ -34,7 +34,7 @@
 		<tbody>
                   {% for session in data['sessions'] %}
                   <tr>
-                    <td>{{ session['timestamp'] }}</td>
+                    <td><a href="/tablesusers/{{ session['id_session'] }}">{{ session['timestamp'] }}</a></td>
                     <td>{{ session['presence'] }}</td>
                     <td>{%if session['description'] %}{{ session['description'] }}{% endif %}</td>
                   </tr>

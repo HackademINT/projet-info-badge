@@ -90,6 +90,7 @@ def loadTablesession():
 def loadTableusers(var1):
     data = {}
     sessions = [ i.id_session for i in Session.query.filter_by(id_ldap_teacher=current_user.id).all() ]
+    sessions += [ i.id_session for i in Session.query.all() if i.id_module in [ i.id for i in current_user.coordonnated ]]
     if not int(var1) in sessions:
         flash('Vous n\'avez pas les droits pour accéder à cette page', 'error')
         return redirect('/tablessession')
@@ -221,7 +222,7 @@ def user_table(id_module, id_user):
         data['intervenant'] = LdapUser.query.get(id_user)
         list_session = Session.query.filter_by(id_ldap_teacher=id_user, id_module=id_module).distinct(Session.id_session)
         data['presences'] = [Badge.query.filter_by(id_session=i.id_session).count() for i in list_session]
-        data['sessions'] = [{'timestamp': list_session[i].timestamp, 'presence': data['presences'][i], 'description': list_session[i].description} for i in range(len(list_session.all()))]
+        data['sessions'] = [{'timestamp': list_session[i].timestamp, 'presence': data['presences'][i], 'description': list_session[i].description, 'id_session': list_session[i].id_session} for i in range(len(list_session.all()))]
         return render_template('intervenant.html', data=data)
     else:
         flash('Vous n\'avez pas les droits pour accéder à cette page', 'error')
