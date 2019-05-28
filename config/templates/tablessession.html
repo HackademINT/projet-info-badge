@@ -33,7 +33,7 @@
                     </td>
                     <td>
                       <div class="input-group">
-                        <form id="module{{ item.module.id }}" name="module{{ item.module.id }}" action="/tablessession" method="post">
+                        <form method="POST">
                           <select name="newModuleId" class="selectpicker" style="width:auto" data-live-search="true" data-width="fit" data-container="body">
                             <option selected value=0>Selectionnez un module</option>
                             {% for module in data['modules'] %}
@@ -42,7 +42,7 @@
                           </select>
                           <input type=hidden name="type" value="moduleid">
                           <input type=hidden name="id_session" value="{{item.id_session}}">
-                          <button class="btn btn-outline-success btn-sm" form="module{{ item.module.id }}" role="button" aria-pressed="true"><i class="fa fa-check"></i></button>
+                          <button class="btn btn-outline-success btn-sm" role="button" aria-pressed="true"><i class="fa fa-check"></i></button>
                         </form>
                       </div>
                     </td>
