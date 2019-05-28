@@ -110,6 +110,7 @@ class ModuleModelView(ModelView):
 class BadgeModelView(ModelView):                                                 
     page_size = 20                                                              
     column_searchable_list = ['session.ldap_teacher.login','ldap_student.login', 'session.timestamp','session.module.nom'] 
+    column_default_sort = ('session.timestamp', True)
     column_exclude_list = []                                                    
     form_excluded_columns = []                                                                                                                                  
     def is_accessible(self):                                                    
@@ -121,6 +122,8 @@ class BadgeModelView(ModelView):
 class SessionModelView(ModelView):                                                 
     page_size = 20                                                              
     column_searchable_list = ['timestamp','ldap_teacher.login','module.nom','description'] 
+    column_default_sort = ('timestamp', True)
+    column_sortable_list = ['timestamp']
     column_exclude_list = []                                                    
     form_excluded_columns = []                                                                                                                                  
     def is_accessible(self):                                                    
@@ -140,12 +143,25 @@ class CoordonnatorModelView(ModelView):
         flash('Accès interdit ! Merci de vous identifier.', 'error')            
         return redirect(url_for('default'))
 
+
+class LdapUserModelView(ModelView):                                                 
+    page_size = 20                                                              
+    column_searchable_list = ['login', 'id_badge'] 
+    column_exclude_list = []                                                    
+    form_excluded_columns = []                                                                                                                                  
+    def is_accessible(self):                                                    
+        return current_user.is_authenticated                                    
+    def inaccessible_callback(self, name, **kwargs):                            
+        flash('Accès interdit ! Merci de vous identifier.', 'error')            
+        return redirect(url_for('default'))
+
 @login_manager.user_loader
 def get_user(user_id):
     return LdapUser.query.get(int(user_id))
 
 
 admin = Admin(app, name='Base de données', template_mode='bootstrap3',index_view=MyAdminView(url='/admin'))                             
+admin.add_view(LdapUserModelView(LdapUser, db.session))
 admin.add_view(ModuleModelView(Module, db.session))                                 
 admin.add_view(BadgeModelView(Badge, db.session))                               
 admin.add_view(SessionModelView(Session, db.session))                               
