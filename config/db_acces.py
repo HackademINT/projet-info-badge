@@ -62,6 +62,7 @@ class LdapUser(db.Model, UserMixin):
     id                = db.Column(db.Integer, primary_key=True)
     login             = db.Column(db.String(80), nullable=False)
     id_badge          = db.Column(db.Integer, unique=True)#,nullable=False)
+    is_admin          = db.Column(db.Boolean, nullable=False)
     coordonnated      = db.relationship('Module', secondary='coordonnator_modules')
 
     def __repr__(self):
