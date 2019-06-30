@@ -86,15 +86,14 @@ class MyAdminView(AdminIndexView):
     def index(self):
         return self.render('admin/index.html')
     def is_accessible(self):
-        return current_user.is_authenticated
+        return current_user.is_authenticated and current_user.is_admin
     def inaccessible_callback(self, name, **kwargs):
         flash('Accès interdit ! Merci de vous identifier.', 'error')
         return redirect(url_for('login_page'))
     def _handle_view(self, name, *args, **kwargs):
-        if not current_user.is_authenticated:
-            return redirect(url_for('login_page'))
         if not self.is_accessible():
             flash('Accès interdit ! Merci de vous identifier.', 'error')
+            return redirect("/")
 
 
 class ModuleModelView(ModelView):                                                 
@@ -102,11 +101,14 @@ class ModuleModelView(ModelView):
     column_searchable_list = ['nom']                         
     column_exclude_list = []                                                    
     form_excluded_columns = []                                                                                                                                  
-    def is_accessible(self):                                                    
-        return current_user.is_authenticated                                    
-    def inaccessible_callback(self, name, **kwargs):                            
-        flash('Accès interdit ! Merci de vous identifier.', 'error')            
-        return redirect(url_for('default'))
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.is_admin
+    def inaccessible_callback(self, name, **kwargs):
+        flash('Accès interdit ! Merci de vous identifier.', 'error')
+        return redirect(url_for('login_page'))
+    def _handle_view(self, name, *args, **kwargs):
+        if not self.is_accessible():
+            flash('Accès interdit ! Merci de vous identifier.', 'error')
 
 class BadgeModelView(ModelView):                                                 
     page_size = 20                                                              
@@ -114,11 +116,14 @@ class BadgeModelView(ModelView):
     column_default_sort = ('session.timestamp', True)
     column_exclude_list = []                                                    
     form_excluded_columns = []                                                                                                                                  
-    def is_accessible(self):                                                    
-        return current_user.is_authenticated                                    
-    def inaccessible_callback(self, name, **kwargs):                            
-        flash('Accès interdit ! Merci de vous identifier.', 'error')            
-        return redirect(url_for('default'))
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.is_admin
+    def inaccessible_callback(self, name, **kwargs):
+        flash('Accès interdit ! Merci de vous identifier.', 'error')
+        return redirect(url_for('login_page'))
+    def _handle_view(self, name, *args, **kwargs):
+        if not self.is_accessible():
+            flash('Accès interdit ! Merci de vous identifier.', 'error')
 
 class SessionModelView(ModelView):                                                 
     page_size = 20                                                              
@@ -127,22 +132,28 @@ class SessionModelView(ModelView):
     column_sortable_list = ['timestamp']
     column_exclude_list = []                                                    
     form_excluded_columns = []                                                                                                                                  
-    def is_accessible(self):                                                    
-        return current_user.is_authenticated                                    
-    def inaccessible_callback(self, name, **kwargs):                            
-        flash('Accès interdit ! Merci de vous identifier.', 'error')            
-        return redirect(url_for('default'))
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.is_admin
+    def inaccessible_callback(self, name, **kwargs):
+        flash('Accès interdit ! Merci de vous identifier.', 'error')
+        return redirect(url_for('login_page'))
+    def _handle_view(self, name, *args, **kwargs):
+        if not self.is_accessible():
+            flash('Accès interdit ! Merci de vous identifier.', 'error')
 
 class CoordonnatorModelView(ModelView):                                                 
     page_size = 20                                                              
     column_searchable_list = ['ldap_user.login', 'module.nom'] 
     column_exclude_list = []                                                    
     form_excluded_columns = []                                                                                                                                  
-    def is_accessible(self):                                                    
-        return current_user.is_authenticated                                    
-    def inaccessible_callback(self, name, **kwargs):                            
-        flash('Accès interdit ! Merci de vous identifier.', 'error')            
-        return redirect(url_for('default'))
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.is_admin
+    def inaccessible_callback(self, name, **kwargs):
+        flash('Accès interdit ! Merci de vous identifier.', 'error')
+        return redirect(url_for('login_page'))
+    def _handle_view(self, name, *args, **kwargs):
+        if not self.is_accessible():
+            flash('Accès interdit ! Merci de vous identifier.', 'error')
 
 
 class LdapUserModelView(ModelView):                                                 
@@ -150,11 +161,14 @@ class LdapUserModelView(ModelView):
     column_searchable_list = ['login', 'id_badge'] 
     column_exclude_list = []                                                    
     form_excluded_columns = []                                                                                                                                  
-    def is_accessible(self):                                                    
-        return current_user.is_authenticated                                    
-    def inaccessible_callback(self, name, **kwargs):                            
-        flash('Accès interdit ! Merci de vous identifier.', 'error')            
-        return redirect(url_for('default'))
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.is_admin
+    def inaccessible_callback(self, name, **kwargs):
+        flash('Accès interdit ! Merci de vous identifier.', 'error')
+        return redirect(url_for('login_page'))
+    def _handle_view(self, name, *args, **kwargs):
+        if not self.is_accessible():
+            flash('Accès interdit ! Merci de vous identifier.', 'error')
 
 @login_manager.user_loader
 def get_user(user_id):
