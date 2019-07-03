@@ -10,10 +10,10 @@ from flask_admin import Admin, AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
 from config.secret import secretkey
 app = Flask(__name__)
-db = SQLAlchemy(app)
 app.config['SECRET_KEY'] = secretkey
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///badge.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 

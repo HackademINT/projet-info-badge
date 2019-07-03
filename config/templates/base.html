@@ -81,8 +81,12 @@
             <img class="img-profile rounded-circle logo-nav" src = "https://trombi.imtbs-tsp.eu/photo.php?uid={{current_user.login}}&h=40&w=40"></img>
         </a>
         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+          {% if current_user.is_admin %}
           <a class="dropdown-item" href="/admin">Panel admin</a>
           <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="/nouvel_admin">Gérer les administrateurs</a>
+          <div class="dropdown-divider"></div>
+          {% endif %}
           <a class="dropdown-item" href="/logout" data-toggle="modal"
             data-target="#logoutModal">Se déconnecter</a>
         </div>

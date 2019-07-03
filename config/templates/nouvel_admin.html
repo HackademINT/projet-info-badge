@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block main %}
+
+<style>
+.altcontainer {
+background-color:#fff;
+font-size:120%;
+line-height:1.7em;}
+
+.radiocontainer {
+  background-color:#f1f1f1;
+  display: block;
+  position: relative;
+  padding:10px 10px 10px 50px;
+  margin-bottom: 1px;
+  cursor: pointer;
+  font-size: 18px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  word-wrap: break-word;
+}
+
+.radiocontainer input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.checkmark {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  height: 19px;
+  width: 19px;
+  background-color: #fff;
+  border-radius: 50%;
+}
+
+.checkedlabel {
+  background-color:#ddd;
+}
+
+/* On mouse-over, add a grey background color */
+.radiocontainer:hover input ~ .checkmark {
+  /*nothing*/
+}
+.radiocontainer:hover {
+  background-color: #ddd;
+}
+
+/* When the radio button is checked, add a blue background */
+.radiocontainer input:checked ~ .checkmark {
+  background-color: #2196F3;
+}
+
+/* Create the indicator (the dot/circle - hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the indicator (dot/circle) when checked */
+.radiocontainer input:checked ~ .checkmark:after {
+    display: block;
+}
+
+/* Style the indicator (dot/circle) */
+.radiocontainer .checkmark:after {
+  top: 6px;
+  left: 6px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: white;
+}
+</style>
+
+  <div class="container-fluid">
+
+
+        <!-- Breadcrumbs-->
+        <ol class="breadcrumb">
+          <!-- <li class="breadcrumb-item">
+            <a href="#">Dashboard</a>
+          </li> -->
+          <li class="breadcrumb-item active">Nouvel administrateur</li>
+        </ol>
+
+        <form class="form-inline" method="POST">
+          <div class="form-group">
+            <label>Login :
+              <input name="admin" style="margin-left:6px; margin-right:6px" type="text" class="form-control" required></input>
+            </label>
+          </div>
+          <button type="submit" class="btn btn-primary">Valider</button>
+        </form>
+
+        </br>
+
+        <div class="card mb-3">
+          <div class="card-header">
+            <i class="fas fa-table"></i>
+            Administrateurs</div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered" id="dataTable-custom" width="100%" cellspacing="0">
+                <thead>
+                  <tr>
+                    <th>Login</th>
+                    <th>Supprimer les droits d'administration</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% set count = [0] %}
+                  {% for admin in data['admins'] %}
+                  <tr>
+                    <td>{{ admin.login }}</td>
+                    <td>
+                      <form method="POST">
+                        <input type=hidden name="desadmin" value='{{ admin.id }}'>
+                        <button class="btn btn-sm" role="button"><i style="font-size:20px;color:red" class="fa" title="Retirer les droits d'administration">&#xf00d;</i></button>
+                      </form>
+                    </td>
+                  </tr>
+                  {% if count.append(count.pop() + 1) %}{% endif %}
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card-footer small text-muted">Total: {{ count[0] }} administrateur(s)</div>
+        </div>
+
+  </div>
+  {% endblock %}

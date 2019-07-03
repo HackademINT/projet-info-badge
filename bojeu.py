@@ -10,6 +10,7 @@ from flask_admin import Admin, AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
 from config.db_acces import *
 from config.functions import *
+from config.superadmins import superadmins
 import binascii
 import re 
 import datetime
@@ -17,10 +18,27 @@ import json
 import config.secret
 
 
+def super_admin_required(f):                                                          
+    @wraps(f)                                                                   
+    def decorated_function(*args, **kwargs):                                    
+        if not current_user.login in superadmins:                                   
+            flash('Pour ajouter des administrateurs, veiuillez vous référer à un super administrateur','error')
+            return redirect('/')                                           
+        return f(*args, **kwargs)                                               
+    return decorated_function
+
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated:
+            return redirect('/login')
+        return f(*args, **kwargs)
+    return decorated_function
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_admin:
             return redirect('/login')
         return f(*args, **kwargs)
     return decorated_function
@@ -34,6 +52,56 @@ def coordinator_required(f):
             return redirect('/')
         return f(*args, **kwargs)
     return decorated_function
+
+@app.route('/nouvel_admin', methods=["GET","POST"])
+@login_required
+@admin_required
+@super_admin_required
+def nouvel_admin():
+    data = {}
+    data['admins'] = LdapUser.query.filter_by(is_admin=1).all()
+    if request.method == "POST":
+        if not 'admin'in request.form and not "desadmin" in request.form:
+            flash('La requête n\'est pas valide','error')
+            return render_template("nouvel_admin.html", data=data)
+
+        if 'admin' in request.form:
+            user = LdapUser.query.filter_by(login=request.form['admin']).first()
+            if user == None:
+                nouvel_admin = LdapUser(login=request.form['admin'], is_admin=1)
+                db.session.add(nouvel_admin)
+                db.session.commit()
+                user = LdapUser.query.filter_by(login=request.form['admin']).first()
+            else:
+                user.is_admin = 1
+            modules_id = [ i.id for i in Module.query.all() ]
+            for i in modules_id:
+                newmodule = CoordonnatorModules(ldap_user_id=user.id, module_id=i)
+                db.session.add(newmodule)
+
+            db.session.commit()
+            flash('Administrateur ajouté','success')
+            return redirect("/nouvel_admin")
+        
+        if 'desadmin' in request.form:
+            try:
+                id_admin = int(request.form['desadmin'])
+            except:
+                flash('Une erreur est survenue','error')
+                return render_template("nouvel_admin.html", data=data)
+            user = LdapUser.query.get(id_admin)
+            if user == None:
+                flash('Une erreur est survenue','error')
+                return render_template("/nouvel_admin")
+            user.is_admin = 0
+            for i in CoordonnatorModules.query.filter_by(ldap_user_id=user.id).all():
+                db.session.delete(i)
+
+            db.session.commit()
+            flash('Administrateur retiré','success')
+            return redirect("/nouvel_admin")
+
+    return render_template("nouvel_admin.html", data=data)
 
 
 @app.route("/")
@@ -245,4 +313,18 @@ def erreur404(error):
 
 if __name__ == "__main__":
     db.create_all()
+    for superadmin in superadmins:
+        newsuperadmin = LdapUser.query.filter_by(login=superadmin).first()
+        if newsuperadmin == None:
+            newsuperadmin = LdapUser(login=superadmin, is_admin=1)
+            db.session.add(newsuperadmin)
+            db.session.commit()
+
+            newsuperadmin = LdapUser.query.filter_by(login=superadmin).first()
+
+            modules_id = [ i.id for i in Module.query.all() ]
+            for i in modules_id:
+                newmodule = CoordonnatorModules(ldap_user_id=newsuperadmin.id, module_id=i)
+                db.session.add(newmodule)
+            db.session.commit()
     app.run(host="0.0.0.0", port=3002, debug=True)

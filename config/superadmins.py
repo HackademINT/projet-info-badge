@@ -1,0 +1,1 @@
+superadmins = ["lecocq", "delafont"]
